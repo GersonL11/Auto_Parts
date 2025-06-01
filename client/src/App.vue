@@ -27,7 +27,8 @@
       @show-parts="goTo('parts')"
     />
     <CatalogoPiezas
-      v-if="currentPage === 'parts' && !usuario && !showLogin"
+      v-if="(currentPage === 'parts' && (!usuario || (usuario && usuario.rol === 'cliente')) && !showLogin)"
+      :usuario="usuario"
       @show-login="showLogin = true"
       @show-about="goTo('about')"
       @go-home="goTo('home')"
@@ -35,10 +36,10 @@
       @show-parts="goTo('parts')"
       :categoria-inicial="categoriaInicialPiezas"
     />
-    <!-- Menú lateral solo si el usuario está autenticado -->
-    <AdminLayout v-if="usuario" @navigate="handleSidebarNav" />
+    <!-- Menú lateral solo si el usuario es admin -->
+    <AdminLayout v-if="usuario && usuario.rol === 'admin'" @navigate="handleSidebarNav" />
     <FooterAutoParts
-    v-if="!usuario"
+      v-if="!usuario"
       @show-parts="handleFooterNav('parts')"
       @go-contact="handleFooterNav('contact')"
       @go-about="handleFooterNav('about')"
@@ -82,6 +83,11 @@ export default {
     handleLoginSuccess(usuario) {
       this.usuario = usuario
       this.showLogin = false
+    },
+    logout() {
+      this.usuario = null
+      localStorage.removeItem('autoparts_user')
+      this.currentPage = 'home'
     },
     goTo(page) {
       this.showLogin = false;
@@ -229,5 +235,22 @@ html {
 /* Elimina margen derecho global en botones para evitar overflow */
 button, .btn-login, .btn-iniciar-sesion {
   margin-right: 0 !important;
+}
+.cliente-toast {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #42b983;
+  color: #fff;
+  padding: 1.1rem 2.5rem;
+  border-radius: 18px;
+  font-size: 1.18rem;
+  font-weight: 800;
+  box-shadow: 0 4px 24px #1e3c7240;
+  z-index: 9999;
+  text-align: center;
+  opacity: 0.97;
+  letter-spacing: 0.5px;
 }
 </style>

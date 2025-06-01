@@ -45,10 +45,21 @@
         Contáctanos
       </a>
     </nav>
-    <button class="header-login-btn" @click="$emit('show-login')">
+    <button
+      v-if="!usuario"
+      class="header-login-btn"
+      @click="$emit('show-login')"
+    >
       <i class="fas fa-user-circle"></i>
       Iniciar sesión
     </button>
+    <div v-else class="header-user-menu">
+      <button class="header-user-btn">
+        <i class="fas fa-user-circle"></i>
+        {{ usuario.nombre }}
+      </button>
+      <!-- Aquí puedes agregar un menú desplegable de usuario si lo deseas -->
+    </div>
   </header>
 </template>
 
@@ -59,6 +70,10 @@ export default {
     current: {
       type: String,
       default: "home"
+    },
+    usuario: {
+      type: Object,
+      default: null
     }
   }
 };
@@ -201,6 +216,34 @@ export default {
 }
 .header-login-btn:hover i {
   color: #fff;
+}
+.header-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.header-user-btn {
+  background: linear-gradient(90deg, #42b983 0%, #ff9800 100%);
+  color: #232b36;
+  border: none;
+  border-radius: 18px;
+  padding: 0.55rem 1.7rem;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 12px #42b98333, 0 1px 4px #ff980033;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
+  font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+}
+.header-user-btn i {
+  font-size: 1.3rem;
+  color: #232b36;
+  transition: color 0.2s;
 }
 @media (max-width: 1100px) {
   .app-header {

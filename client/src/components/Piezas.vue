@@ -2,6 +2,7 @@
   <div class="piezas-page fade-in">
     <AppHeader
       :current="'parts'"
+      :usuario="usuario"
       @show-login="$emit('show-login')"
       @show-about="$emit('show-about')"
       @go-home="$emit('go-home')"
@@ -52,35 +53,45 @@
         <div v-if="filteredPiezas.length === 0" class="piezas-no-results">
           No se encontraron piezas.
         </div>
-        <div class="piezas-cards modern-grid">
+        <div class="amazon-style-cards">
           <div
             v-for="pieza in paginatedPiezas"
             :key="pieza._id"
-            class="pieza-card modern-card"
+            class="amazon-card"
             @click="showDetalle(pieza)"
             tabindex="0"
             @keyup.enter="showDetalle(pieza)"
           >
-            <div class="modern-card-img-wrap">
-              <img :src="pieza.img || require('../assets/Piezas/alternador.jpg')" :alt="pieza.nombre" class="modern-card-img" />
-              <!-- Badge IA eliminado -->
+            <div class="amazon-card-img-wrap">
+              <img :src="pieza.img || require('../assets/Piezas/alternador.jpg')" :alt="pieza.nombre" class="amazon-card-img" />
             </div>
-            <div class="modern-card-body">
-              <h3 class="modern-card-title">{{ pieza.nombre }}</h3>
-              <div class="modern-card-brand">
+            <div class="amazon-card-body">
+              <div class="amazon-card-title-row">
+                <h3 class="amazon-card-title">{{ pieza.nombre }}</h3>
+                <button
+                  class="amazon-card-eye-btn"
+                  @click.stop="showDetalle(pieza)"
+                  title="Ver detalle"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="amazon-card-brand">
                 <span v-if="pieza.marca">{{ pieza.marca }}</span>
                 <span v-if="pieza.modelo">/ {{ pieza.modelo }}</span>
                 <span v-if="pieza.año">/ {{ pieza.año }}</span>
               </div>
-              <div class="modern-card-desc">
+              <div class="amazon-card-desc">
                 <span v-if="pieza.ubicacion"><i class="fas fa-map-marker-alt"></i> {{ pieza.ubicacion }}</span>
                 <span v-if="pieza.cantidad">| <i class="fas fa-boxes"></i> {{ pieza.cantidad }} disp.</span>
               </div>
-              <div class="modern-card-price-row">
-                <span class="modern-card-price">L {{ pieza.precio ? pieza.precio.toLocaleString() : '0' }}</span>
-                <button class="modern-card-btn" @click.stop="showDetalle(pieza)">
-                  <i class="fas fa-eye"></i>
+              <div class="amazon-card-cart-row">
+                <button class="amazon-card-btn" @click.stop="agregarAlCarrito(pieza)">
+                  <i class="fas fa-cart-plus"></i> Agregar al carrito
                 </button>
+              </div>
+              <div class="amazon-card-price-row">
+                <span class="amazon-card-price">L {{ pieza.precio ? pieza.precio.toLocaleString() : '0' }}</span>
               </div>
             </div>
           </div>
@@ -109,7 +120,9 @@
         <div class="pieza-modal-precio">
           <i class="fas fa-money-bill-wave"></i> Precio: <b>L {{ piezaSeleccionada.precio ? piezaSeleccionada.precio.toLocaleString() : '0' }}</b>
         </div>
-        <button class="pieza-btn pieza-modal-btn" @click="solicitarPieza(piezaSeleccionada)"><i class="fas fa-paper-plane"></i> Solicitar</button>
+        <button class="pieza-btn pieza-modal-btn" @click="agregarAlCarrito(piezaSeleccionada)">
+          <i class="fas fa-cart-plus"></i> Agregar al carrito
+        </button>
       </div>
     </div>
   </div>
@@ -126,6 +139,10 @@ export default {
     categoriaInicial: {
       type: String,
       default: ''
+    },
+    usuario: {
+      type: Object,
+      default: null
     }
   },
   data() {
@@ -207,6 +224,14 @@ export default {
     solicitarPieza(pieza) {
       alert(`¡Solicitud enviada para: ${pieza.nombre}!`)
       this.piezaSeleccionada = null
+    },
+    agregarAlCarrito(pieza) {
+      if (!this.usuario) {
+        this.$emit('show-login');
+        return;
+      }
+      // Aquí lógica real de agregar al carrito (por ahora solo alerta)
+      alert(`"${pieza.nombre}" agregado al carrito`);
     },
     async cargarPiezas() {
       this.loading = true
@@ -455,7 +480,7 @@ export default {
 }
 .pieza-btn:hover,
 .pieza-modal-btn:hover {
-  background: linear-gradient(90deg, #3a4250 0%, #42b983 100%);
+  background: linear-gradient(90deg, #42b983 0%, #00eaff 100%);
   color: #fff;
   box-shadow: 0 4px 16px #42b98333;
 }
@@ -634,6 +659,7 @@ export default {
   background: #fff;
   box-shadow: 0 2px 8px #00eaff22;
   display: block;
+  margin: 0 auto;
 }
 .amazon-card-body {
   display: flex;
@@ -642,6 +668,12 @@ export default {
   padding: 0.7rem 1rem 1.2rem 1rem;
   flex: 1 1 auto;
   justify-content: flex-end;
+}
+.amazon-card-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5em;
 }
 .amazon-card-title {
   font-size: 1.13rem;
@@ -653,6 +685,29 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5em;
+  flex: 1 1 auto;
+}
+.amazon-card-eye-btn {
+  background: #f5f5f5;
+  color: #42b983;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px #42b98322;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  z-index: 2;
+  margin-left: 0.5em;
+}
+.amazon-card-eye-btn:hover {
+  background: #42b983;
+  color: #fff;
+  box-shadow: 0 4px 16px #42b98333;
 }
 .amazon-card-brand {
   font-size: 0.97rem;
@@ -663,10 +718,6 @@ export default {
   align-items: center;
   gap: 0.5em;
   flex-wrap: wrap;
-}
-.amazon-card-brand i {
-  color: #00bcd4;
-  margin-right: 0.2em;
 }
 .amazon-card-desc {
   color: #7a8ca3;
@@ -681,21 +732,14 @@ export default {
   color: #ff9800;
   margin-right: 0.2em;
 }
-.amazon-card-price-row {
+.amazon-card-cart-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin-top: 0.7rem;
-  gap: 0.7em;
-}
-.amazon-card-price {
-  color: #00bcd4;
-  font-size: 1.18rem;
-  font-weight: 900;
-  letter-spacing: 1px;
 }
 .amazon-card-btn {
-  background: linear-gradient(90deg, #232b36 0%, #42b983 100%);
+  background: linear-gradient(90deg, #42b983 0%, #00eaff 100%);
   color: #fff;
   border: none;
   border-radius: 14px;
@@ -708,11 +752,29 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5em;
+  width: 100%;
+  justify-content: center;
 }
 .amazon-card-btn:hover {
-  background: linear-gradient(90deg, #42b983 0%, #00eaff 100%);
+  background: linear-gradient(90deg, #00eaff 0%, #42b983 100%);
   color: #fff;
   box-shadow: 0 4px 16px #42b98333;
+}
+.amazon-card-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+.amazon-card-price {
+  color: #00bcd4;
+  font-size: 1.18rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 0.3em 1em;
+  display: inline-block;
 }
 @media (max-width: 1200px) {
   .amazon-style-cards {
@@ -802,80 +864,33 @@ export default {
   background: #fff;
   box-shadow: 0 2px 8px #00eaff22;
   display: block;
+  margin: 0 auto;
 }
-.modern-card-badge {
+.modern-card-eye-btn {
   position: absolute;
   top: 10px;
   left: 10px;
+  background: #fff;
+  color: #42b983;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 2px 8px #42b98322;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  z-index: 2;
+}
+.modern-card-eye-btn:hover {
   background: #42b983;
   color: #fff;
-  font-size: 0.85rem;
-  font-weight: bold;
-  padding: 0.25em 0.8em;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px #42b98333;
-  letter-spacing: 1px;
+  box-shadow: 0 4px 16px #42b98333;
 }
-.modern-card-badge.ia-badge {
-  background: #00bcd4;
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: bold;
-  padding: 0.25em 1em;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px #00eaff33;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 0.4em;
-}
-.modern-card-badge.ia-badge i {
-  color: #fff;
-  margin-right: 0.3em;
-}
-.modern-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.7rem 1rem 1.2rem 1rem;
-  flex: 1 1 auto;
-  justify-content: flex-end;
-}
-.modern-card-title {
-  font-size: 1.13rem;
-  font-weight: 900;
-  color: #232b36;
-  margin-bottom: 0.2rem;
-  text-align: left;
-  min-height: 2.2em;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-}
-.modern-card-brand {
-  font-size: 0.97rem;
-  color: #42b983;
-  font-weight: 700;
-  margin-bottom: 0.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  flex-wrap: wrap;
-}
-.modern-card-desc {
-  color: #7a8ca3;
-  font-size: 0.98rem;
-  margin-bottom: 0.2rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em;
-  align-items: center;
-}
-.modern-card-desc i {
-  color: #ff9800;
-  margin-right: 0.2em;
-}
-.modern-card-price-row {
+.modern-card-price-cart-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -888,8 +903,8 @@ export default {
   font-weight: 900;
   letter-spacing: 1px;
 }
-.modern-card-btn {
-  background: linear-gradient(90deg, #232b36 0%, #42b983 100%);
+.modern-card-cart-btn {
+  background: linear-gradient(90deg, #42b983 0%, #00eaff 100%);
   color: #fff;
   border: none;
   border-radius: 14px;
@@ -903,8 +918,8 @@ export default {
   align-items: center;
   gap: 0.5em;
 }
-.modern-card-btn:hover {
-  background: linear-gradient(90deg, #42b983 0%, #00eaff 100%);
+.modern-card-cart-btn:hover {
+  background: linear-gradient(90deg, #00eaff 0%, #42b983 100%);
   color: #fff;
   box-shadow: 0 4px 16px #42b98333;
 }

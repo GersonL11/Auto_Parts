@@ -9,6 +9,7 @@ exports.crearUsuario = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       data.password = await bcrypt.hash(data.password, salt);
     }
+    data.rol = 'cliente'; // Fuerza el rol a cliente
     const usuario = new Usuario(data);
     await usuario.save();
     res.status(201).json(usuario);

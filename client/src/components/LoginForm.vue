@@ -329,7 +329,7 @@ export default {
           } else {
             localStorage.removeItem('autoparts_user');
           }
-          this.$emit('login-success', res.data.usuario);
+          this.$emit('login-success', res.data.usuario); // usuario.rol incluido
         } catch (err) {
           this.error = 'Credenciales inválidas';
         }
@@ -341,6 +341,7 @@ export default {
             correo: this.correo,
             usuario: this.usuario,
             password: this.password
+            // No enviar rol
           });
           this.isLogin = true;
           this.error = '';

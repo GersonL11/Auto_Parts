@@ -5,7 +5,8 @@ const usuarioSchema = new mongoose.Schema({
   correo: { type: String, required: true, unique: true },
   usuario: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  codigoRecuperacion: { type: String } // <-- nuevo campo opcional
+  codigoRecuperacion: { type: String }, // <-- nuevo campo opcional
+  rol: { type: String, enum: ['admin', 'cliente'], default: 'cliente' } // <-- nuevo campo
 });
 
 module.exports = mongoose.model('Usuario', usuarioSchema);
