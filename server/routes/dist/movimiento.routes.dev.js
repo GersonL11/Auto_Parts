@@ -1,0 +1,15 @@
+"use strict";
+
+var express = require('express');
+
+var router = express.Router();
+
+var movimientoCtrl = require('../controllers/movimiento.controller');
+
+router.post('/', movimientoCtrl.crearMovimiento);
+router.get('/', movimientoCtrl.obtenerMovimientos);
+router.get('/:id', movimientoCtrl.obtenerMovimientoPorId);
+router.put('/:id', movimientoCtrl.actualizarMovimiento);
+router["delete"]('/:id', movimientoCtrl.eliminarMovimiento);
+module.exports = router;
+//# sourceMappingURL=movimiento.routes.dev.js.map
