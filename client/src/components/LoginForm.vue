@@ -11,12 +11,12 @@
     <div class="login-container">
       <!-- Toast notification -->
       <transition name="fade">
-        <div v-if="toastMsg" class="toast-notification">
+        <div v-if="toastMsg" class="toast-notification toast-bottom-right">
           {{ toastMsg }}
         </div>
       </transition>
       <div class="login-card ultra-glass premium-shadow">
-        <button class="btn-back-icon" type="button" @click="$emit('close')" aria-label="Volver atrás">
+        <button class="btn-back-icon" type="button" @click="handleBack" aria-label="Volver atrás">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
             <circle cx="16" cy="16" r="16" fill="#ffffffee"/>
             <path d="M19 24L13 16L19 8" stroke="#1e3c72" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -299,6 +299,7 @@ export default {
       showPassword: false,
       showPasswordRegister: false,
       showPasswordReset: false,
+      usuarioCliente: null, // Nuevo: para guardar info del cliente si es necesario
     };
   },
   mounted() {
@@ -329,7 +330,16 @@ export default {
           } else {
             localStorage.removeItem('autoparts_user');
           }
-          this.$emit('login-success', res.data.usuario); // usuario.rol incluido
+          // Notificación y redirección solo para cliente
+          if (res.data.usuario && res.data.usuario.rol === 'cliente') {
+            this.toastMsg = '¡Inicio de sesión exitoso!';
+            setTimeout(() => {
+              this.toastMsg = '';
+              this.$emit('login-success', res.data.usuario);
+            }, 1400);
+          } else {
+            this.$emit('login-success', res.data.usuario);
+          }
         } catch (err) {
           this.error = 'Credenciales inválidas';
         }
@@ -417,7 +427,14 @@ export default {
       if (this.$route && this.$route.path === '/recuperar-clave') {
         this.$router.replace('/');
       }
-    }
+    },
+    handleBack() {
+      // Si ya hay usuarioCliente (login exitoso), emitir login-success
+      if (this.usuarioCliente) {
+        this.$emit('login-success', this.usuarioCliente);
+      }
+      this.$emit('close');
+    },
   }
 };
 </script>
@@ -883,6 +900,22 @@ export default {
   text-align: center;
   opacity: 0.97;
   letter-spacing: 0.5px;
+}
+.toast-bottom-right {
+  top: auto;
+  bottom: 40px;
+  left: auto;
+  right: 40px;
+  transform: none;
+  min-width: 260px;
+  max-width: 90vw;
+  text-align: right;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.4s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 .toggle-password {
   position: absolute;

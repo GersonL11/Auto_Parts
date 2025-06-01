@@ -1,6 +1,7 @@
 <template>
   <div class="home-hero fade-in">
     <AppHeader
+      :usuario="usuario"
       current="home"
       @show-login="$emit('show-login')"
       @show-about="handleNav('show-about')"
@@ -23,6 +24,12 @@ import PricingPlansSection from './PricingPlansSection.vue'
 export default {
   name: 'HomePage',
   components: { AppHeader, PageBreadcrumb, AboutUsSection, PricingPlansSection },
+  props: {
+    usuario: {
+      type: Object,
+      default: null
+    }
+  },
   methods: {
     handleNav(event) {
       window.scrollTo({ top: 0, behavior: 'auto' });

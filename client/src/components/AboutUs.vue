@@ -1,6 +1,7 @@
 <template>
   <div class="aboutus-page fade-in">
     <AppHeader
+      :usuario="usuario"
       :current="'about'"
       @show-login="$emit('show-login')"
       @show-about="handleNav('show-about')"
@@ -110,6 +111,12 @@ export default {
   components: {
     AppHeader,
     PageBreadcrumb
+  },
+  props: {
+    usuario: {
+      type: Object,
+      default: null
+    }
   },
   methods: {
     handleNav(event) {

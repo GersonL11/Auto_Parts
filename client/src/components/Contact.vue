@@ -1,6 +1,7 @@
 <template>
   <div class="contact-page fade-in">
     <AppHeader
+      :usuario="usuario"
       :current="'contact'"
       @show-login="$emit('show-login')"
       @show-about="handleNav('show-about')"
@@ -102,6 +103,12 @@ export default {
   components: {
     AppHeader,
     PageBreadcrumb
+  },
+  props: {
+    usuario: {
+      type: Object,
+      default: null
+    }
   },
   data() {
     return {

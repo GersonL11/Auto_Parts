@@ -1,7 +1,8 @@
 <template>
   <div id="app" :class="{ 'modal-open': showLogin }">
     <HomePage
-      v-if="currentPage === 'home' && !usuario && !showLogin"
+      v-if="currentPage === 'home' && !showLogin"
+      :usuario="usuario"
       @show-login="showLogin = true"
       @show-about="goTo('about')"
       @go-home="goTo('home')"
@@ -11,7 +12,8 @@
     />
     <LoginForm v-if="showLogin && !usuario" @login-success="handleLoginSuccess" @close="showLogin = false" />
     <AboutUs
-      v-if="currentPage === 'about' && !usuario && !showLogin"
+      v-if="currentPage === 'about' && !showLogin"
+      :usuario="usuario"
       @show-login="showLogin = true"
       @show-about="goTo('about')"
       @go-home="goTo('home')"
@@ -19,7 +21,8 @@
       @show-parts="goTo('parts')"
     />
     <Contact
-      v-if="currentPage === 'contact' && !usuario && !showLogin"
+      v-if="currentPage === 'contact' && !showLogin"
+      :usuario="usuario"
       @show-login="showLogin = true"
       @show-about="goTo('about')"
       @go-home="goTo('home')"
@@ -27,7 +30,7 @@
       @show-parts="goTo('parts')"
     />
     <CatalogoPiezas
-      v-if="(currentPage === 'parts' && (!usuario || (usuario && usuario.rol === 'cliente')) && !showLogin)"
+      v-if="currentPage === 'parts' && !showLogin"
       :usuario="usuario"
       @show-login="showLogin = true"
       @show-about="goTo('about')"
@@ -36,10 +39,10 @@
       @show-parts="goTo('parts')"
       :categoria-inicial="categoriaInicialPiezas"
     />
-    <!-- Menú lateral solo si el usuario es admin -->
-    <AdminLayout v-if="usuario && usuario.rol === 'admin'" @navigate="handleSidebarNav" />
+    <!-- Menú lateral solo si el usuario es admin y currentPage es 'admin' -->
+    <AdminLayout v-if="usuario && usuario.rol === 'admin' && currentPage === 'admin'" @navigate="handleSidebarNav" />
     <FooterAutoParts
-      v-if="!usuario"
+      v-if="!usuario || (usuario && usuario.rol !== 'admin')"
       @show-parts="handleFooterNav('parts')"
       @go-contact="handleFooterNav('contact')"
       @go-about="handleFooterNav('about')"
@@ -79,10 +82,35 @@ export default {
       categoriaInicialPiezas: ''
     }
   },
+  created() {
+    // Recuperar usuario de localStorage si existe
+    const savedUser = localStorage.getItem('autoparts_user');
+    if (savedUser) {
+      try {
+        this.usuario = JSON.parse(savedUser);
+        // Redirigir según el rol si es necesario
+        if (this.usuario && this.usuario.rol === 'admin') {
+          this.currentPage = 'admin';
+        } else if (this.usuario && this.usuario.rol === 'cliente') {
+          this.currentPage = 'parts';
+        }
+      } catch (e) {
+        this.usuario = null;
+      }
+    }
+  },
   methods: {
     handleLoginSuccess(usuario) {
       this.usuario = usuario
       this.showLogin = false
+      // Guardar usuario en localStorage
+      localStorage.setItem('autoparts_user', JSON.stringify(usuario));
+      // Redirige según el rol
+      if (usuario && usuario.rol === 'admin') {
+        this.currentPage = 'admin'
+      } else if (usuario && usuario.rol === 'cliente' && this.currentPage === 'home') {
+        this.currentPage = 'parts'
+      }
     },
     logout() {
       this.usuario = null
