@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{ 'modal-open': showLogin }">
+  <div id="app" :class="{ 'modal-open': showLogin || mostrarCarrito }">
     <HomePage
       v-if="currentPage === 'home' && !showLogin"
       :usuario="usuario"
@@ -49,6 +49,16 @@
       @go-location="handleFooterNav('location')"
     />
     <ScrollToTop />
+    <CarritoFloatBtn
+      v-if="usuario && usuario.rol === 'cliente' && !showLogin && currentPage !== 'admin'"
+      @open-cart="mostrarCarrito = true"
+      :totalArticulos="totalCarrito"
+    />
+    <CarritoModal
+      v-if="mostrarCarrito"
+      @close="mostrarCarrito = false"
+      @ir-a-pagar="irAPagar"
+    />
   </div>
 </template>
 
@@ -61,6 +71,8 @@ import CatalogoPiezas from './components/Piezas.vue'
 import FooterAutoParts from './components/FooterAutoParts.vue'
 import ScrollToTop from './components/ScrollToTop.vue'
 import AdminLayout from './components/admin/AdminLayout.vue'
+import CarritoFloatBtn from './components/Carrito.vue'
+import CarritoModal from './components/CarritoModal.vue'
 
 export default {
   name: 'App',
@@ -72,14 +84,18 @@ export default {
     CatalogoPiezas,
     FooterAutoParts,
     ScrollToTop,
-    AdminLayout
+    AdminLayout,
+    CarritoFloatBtn,
+    CarritoModal
   },
   data() {
     return {
       usuario: null,
       showLogin: false,
       currentPage: 'home',
-      categoriaInicialPiezas: ''
+      categoriaInicialPiezas: '',
+      mostrarCarrito: false,
+      totalCarrito: 0
     }
   },
   created() {
@@ -98,6 +114,15 @@ export default {
         this.usuario = null;
       }
     }
+    // Inicializa el total del carrito al cargar la app
+    const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+    this.totalCarrito = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+
+    // Escucha el evento global para actualizar el badge en tiempo real
+    window.addEventListener('carrito-actualizado', this._actualizarTotalCarritoDesdeStorage);
+  },
+  beforeUnmount() {
+    window.removeEventListener('carrito-actualizado', this._actualizarTotalCarritoDesdeStorage);
   },
   methods: {
     handleLoginSuccess(usuario) {
@@ -180,8 +205,25 @@ export default {
       }
     },
     handleSidebarNav(page) {
-      // Aquí puedes cambiar la vista según la opción seleccionada del menú lateral
       this.currentPage = page;
+    },
+    mostrarCarritoModal() {
+      this.mostrarCarrito = true;
+    },
+    ocultarCarritoModal() {
+      this.mostrarCarrito = false;
+    },
+    irAPagar() {
+      this.mostrarCarrito = false;
+      alert('Redirigiendo a la página de pago...');
+    },
+    actualizarTotalCarrito(nuevoTotal) {
+      this.totalCarrito = nuevoTotal;
+    },
+    _actualizarTotalCarritoDesdeStorage: function() {
+      // Usar function normal para mantener el contexto de Vue
+      const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+      this.totalCarrito = carrito.reduce((sum, item) => sum + item.cantidad, 0);
     }
   }
 }
@@ -259,7 +301,6 @@ html {
   from { opacity: 0; transform: translateY(-30px);}
   to { opacity: 1; transform: translateY(0);}
 }
-
 /* Elimina margen derecho global en botones para evitar overflow */
 button, .btn-login, .btn-iniciar-sesion {
   margin-right: 0 !important;

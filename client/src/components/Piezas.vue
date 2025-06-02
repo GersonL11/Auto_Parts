@@ -63,7 +63,7 @@
             @keyup.enter="showDetalle(pieza)"
           >
             <div class="amazon-card-img-wrap">
-              <img :src="pieza.img || require('../assets/Piezas/alternador.jpg')" :alt="pieza.nombre" class="amazon-card-img" />
+              <img :src="pieza.imagen || require('../assets/Piezas/alternador.jpg')" :alt="pieza.nombre" class="amazon-card-img" />
             </div>
             <div class="amazon-card-body">
               <div class="amazon-card-title-row">
@@ -106,7 +106,7 @@
     <div v-if="piezaSeleccionada" class="pieza-modal-bg" @click.self="piezaSeleccionada = null">
       <div class="pieza-modal">
         <button class="pieza-modal-close" @click="piezaSeleccionada = null"><i class="fas fa-times"></i></button>
-        <img :src="piezaSeleccionada.img || require('../assets/Piezas/alternador.jpg')" :alt="piezaSeleccionada.nombre" class="pieza-modal-img" />
+        <img :src="piezaSeleccionada.imagen || require('../assets/Piezas/alternador.jpg')" :alt="piezaSeleccionada.nombre" class="pieza-modal-img" />
         <h3><i class="fas fa-tools"></i> {{ piezaSeleccionada.nombre }}</h3>
         <div class="pieza-modal-cat">
           <i class="fas fa-industry"></i> {{ piezaSeleccionada.marca }}
@@ -230,7 +230,27 @@ export default {
         this.$emit('show-login');
         return;
       }
-      // Aquí lógica real de agregar al carrito (por ahora solo alerta)
+      let carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+      const idx = carrito.findIndex(item => item._id === pieza._id);
+      if (idx !== -1) {
+        if (carrito[idx].cantidad < pieza.cantidad) {
+          carrito[idx].cantidad += 1;
+        }
+      } else {
+        carrito.push({
+          _id: pieza._id,
+          nombre: pieza.nombre,
+          precio: pieza.precio,
+          img: pieza.imagen,
+          cantidad: 1,
+          maxCantidad: pieza.cantidad,
+        });
+      }
+      localStorage.setItem('carrito', JSON.stringify(carrito));
+      // Emite el carrito completo, no solo el total
+      this.$emit('carrito-actualizado', carrito);
+      // Notifica a toda la app para actualizar el badge en tiempo real
+      window.dispatchEvent(new Event('carrito-actualizado'));
       alert(`"${pieza.nombre}" agregado al carrito`);
     },
     async cargarPiezas() {
