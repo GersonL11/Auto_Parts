@@ -49,7 +49,7 @@
       <div v-if="loading" class="piezas-loading">
         <i class="fas fa-cog fa-spin"></i> Cargando piezas...
       </div>
-      <div v-else>
+      <div v-else :class="{ 'blurred-bg': piezaSeleccionada }">
         <div v-if="filteredPiezas.length === 0" class="piezas-no-results">
           No se encontraron piezas.
         </div>
@@ -1006,5 +1006,11 @@ export default {
 .modern-card-badge,
 .modern-card-badge.ia-badge {
   display: none !important;
+}
+.blurred-bg {
+  filter: blur(6px) brightness(0.93);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.25s;
 }
 </style>

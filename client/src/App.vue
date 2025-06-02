@@ -31,6 +31,7 @@
     />
     <CatalogoPiezas
       v-if="currentPage === 'parts' && !showLogin"
+      ref="catalogoPiezas"
       :usuario="usuario"
       @show-login="showLogin = true"
       @show-about="goTo('about')"
@@ -59,6 +60,13 @@
       @close="mostrarCarrito = false"
       @ir-a-pagar="irAPagar"
     />
+    <Pagar
+      v-if="mostrarPagar"
+      :carrito="carritoParaPagar"
+      :usuario="usuario"
+      @pago-completado="pagoCompletado"
+      @cancelar="cancelarPago"
+    />
   </div>
 </template>
 
@@ -73,6 +81,7 @@ import ScrollToTop from './components/ScrollToTop.vue'
 import AdminLayout from './components/admin/AdminLayout.vue'
 import CarritoFloatBtn from './components/Carrito.vue'
 import CarritoModal from './components/CarritoModal.vue'
+import Pagar from './components/Pagar.vue'
 
 export default {
   name: 'App',
@@ -86,7 +95,8 @@ export default {
     ScrollToTop,
     AdminLayout,
     CarritoFloatBtn,
-    CarritoModal
+    CarritoModal,
+    Pagar
   },
   data() {
     return {
@@ -95,7 +105,9 @@ export default {
       currentPage: 'home',
       categoriaInicialPiezas: '',
       mostrarCarrito: false,
-      totalCarrito: 0
+      totalCarrito: 0,
+      mostrarPagar: false,
+      carritoParaPagar: []
     }
   },
   created() {
@@ -214,8 +226,26 @@ export default {
       this.mostrarCarrito = false;
     },
     irAPagar() {
+      // Obtiene el carrito actual y muestra la página de pago
+      const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+      this.carritoParaPagar = carrito;
       this.mostrarCarrito = false;
-      alert('Redirigiendo a la página de pago...');
+      this.mostrarPagar = true;
+    },
+    pagoCompletado() {
+      this.mostrarPagar = false;
+      // Limpia el carrito tras el pago
+      localStorage.setItem('carrito', '[]');
+      this._actualizarTotalCarritoDesdeStorage();
+      // Recargar piezas si está en la página de catálogo
+      if (this.currentPage === 'parts' && this.$refs.catalogoPiezas) {
+        this.$refs.catalogoPiezas.cargarPiezas();
+      }
+      alert('¡Pago realizado con éxito!');
+      this.currentPage = 'home';
+    },
+    cancelarPago() {
+      this.mostrarPagar = false;
     },
     actualizarTotalCarrito(nuevoTotal) {
       this.totalCarrito = nuevoTotal;

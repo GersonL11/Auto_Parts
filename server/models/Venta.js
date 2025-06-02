@@ -1,13 +1,23 @@
 const mongoose = require('mongoose');
 
-const ventaSchema = new mongoose.Schema({
-  cliente: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
-  repuesto: { type: mongoose.Schema.Types.ObjectId, ref: 'Repuesto', required: true },
-  cantidad: Number,
-  precio_unitario: Number,
-  total: Number,
-  fecha_venta: { type: Date, default: Date.now },
-  usuario_registra: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' }
+const VentaSchema = new mongoose.Schema({
+  cliente: { type: String, required: true },
+  fecha: { type: Date, default: Date.now },
+  total: { type: Number, required: true },
+  carrito: [
+    {
+      _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Repuesto', required: true },
+      nombre: String,
+      marca: String,
+      modelo: String,
+      cantidad: Number,
+      precio: Number
+    }
+  ],
+  metodoPago: { type: String },
+  direccion: { type: String },
+  telefono: { type: String },
+  email: { type: String }
 });
 
-module.exports = mongoose.model('Venta', ventaSchema);
+module.exports = mongoose.model('Venta', VentaSchema);
