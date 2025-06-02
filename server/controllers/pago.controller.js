@@ -9,7 +9,6 @@ exports.enviarConfirmacionPago = async (req, res) => {
   console.log('SMTP_HOST:', process.env.SMTP_HOST);
   console.log('SMTP_PORT:', process.env.SMTP_PORT);
 
-  // Construir el resumen de la compra
   const resumen = carrito.map(item =>
     `- ${item.nombre} (${item.marca || ''} ${item.modelo || ''}) x${item.cantidad} - L ${item.precio * item.cantidad}`
   ).join('\n');
@@ -46,7 +45,6 @@ exports.enviarConfirmacionPago = async (req, res) => {
     <p>Revisar y coordinar entrega con el cliente.</p>
   `;
 
-  // Usar la misma configuración SMTP que en los otros controladores
   const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 587;
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -58,7 +56,6 @@ exports.enviarConfirmacionPago = async (req, res) => {
     }
   });
 
-  // Mostrar configuración del transporter para depuración (sin contraseña)
   console.log('Transporter config:', {
     host: process.env.SMTP_HOST,
     port: smtpPort,
@@ -80,9 +77,7 @@ exports.enviarConfirmacionPago = async (req, res) => {
   };
 
   try {
-    // Verifica la conexión SMTP antes de enviar
     await transporter.verify();
-    // Envía primero al cliente, luego al admin
     const infoCliente = await transporter.sendMail(mailOptionsCliente);
     const infoAdmin = await transporter.sendMail(mailOptionsAdmin);
     console.log('Correo enviado al cliente:', infoCliente.response);

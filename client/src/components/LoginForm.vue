@@ -310,7 +310,7 @@ export default {
         const usuario = JSON.parse(saved);
         this.$emit('login-success', usuario);
       } catch (e) {
-        // Ignorar error de parseo
+        // Ignorar errores de parseo
       }
     }
   },
@@ -372,7 +372,6 @@ export default {
         setTimeout(() => {
           this.toastMsg = '';
         }, 4000);
-        // Mostrar formulario para ingresar código y nueva contraseña
         this.showReset = true;
       } catch (err) {
         this.error = err.response?.data?.error || 'Error al enviar el correo de recuperación';

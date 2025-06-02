@@ -4,7 +4,6 @@ const Repuesto = require('../models/Repuesto');
 // Crear venta
 exports.crearVenta = async (req, res) => {
   try {
-    // Validar y actualizar stock de repuestos usando _id
     const carrito = req.body.carrito || [];
     for (const item of carrito) {
       if (!item._id) {

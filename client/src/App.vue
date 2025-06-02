@@ -111,12 +111,10 @@ export default {
     }
   },
   created() {
-    // Recuperar usuario de localStorage si existe
     const savedUser = localStorage.getItem('autoparts_user');
     if (savedUser) {
       try {
         this.usuario = JSON.parse(savedUser);
-        // Redirigir según el rol si es necesario
         if (this.usuario && this.usuario.rol === 'admin') {
           this.currentPage = 'admin';
         } else if (this.usuario && this.usuario.rol === 'cliente') {
@@ -126,11 +124,9 @@ export default {
         this.usuario = null;
       }
     }
-    // Inicializa el total del carrito al cargar la app
     const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
     this.totalCarrito = carrito.reduce((sum, item) => sum + item.cantidad, 0);
 
-    // Escucha el evento global para actualizar el badge en tiempo real
     window.addEventListener('carrito-actualizado', this._actualizarTotalCarritoDesdeStorage);
   },
   beforeUnmount() {
@@ -140,9 +136,7 @@ export default {
     handleLoginSuccess(usuario) {
       this.usuario = usuario
       this.showLogin = false
-      // Guardar usuario en localStorage
       localStorage.setItem('autoparts_user', JSON.stringify(usuario));
-      // Redirige según el rol
       if (usuario && usuario.rol === 'admin') {
         this.currentPage = 'admin'
       } else if (usuario && usuario.rol === 'cliente' && this.currentPage === 'home') {
@@ -234,10 +228,8 @@ export default {
     },
     pagoCompletado() {
       this.mostrarPagar = false;
-      // Limpia el carrito tras el pago
       localStorage.setItem('carrito', '[]');
       this._actualizarTotalCarritoDesdeStorage();
-      // Recargar piezas si está en la página de catálogo
       if (this.currentPage === 'parts' && this.$refs.catalogoPiezas) {
         this.$refs.catalogoPiezas.cargarPiezas();
       }
@@ -251,7 +243,6 @@ export default {
       this.totalCarrito = nuevoTotal;
     },
     _actualizarTotalCarritoDesdeStorage: function() {
-      // Usar function normal para mantener el contexto de Vue
       const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
       this.totalCarrito = carrito.reduce((sum, item) => sum + item.cantidad, 0);
     }
