@@ -156,7 +156,7 @@ export default {
       categorias: [
         { nombre: 'Motor y Transmisión', icon: 'fas fa-cogs' },
         { nombre: 'Suspensión y Frenos', icon: 'fas fa-car-side' },
-        { nombre: 'Luces y Carrocería', icon: 'fas fa-lightbulb' },
+        { nombre: 'Luces', icon: 'fas fa-lightbulb' },
         { nombre: 'Eléctrico', icon: 'fas fa-bolt' },
         { nombre: 'Interior', icon: 'fas fa-chair' },
       ],

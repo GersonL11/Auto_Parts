@@ -54,7 +54,7 @@
       Iniciar sesión
     </button>
     <div v-else class="header-user-menu">
-      <button class="header-user-btn">
+      <button class="header-user-btn" @click="$emit('abrir-menu-cliente')">
         <i class="fas fa-user-circle"></i>
         {{ usuario.nombre }}
       </button>
@@ -73,6 +73,17 @@ export default {
     usuario: {
       type: Object,
       default: null
+    }
+  },
+  data() {
+    return {
+      mostrarMenu: false
+    }
+  },
+  methods: {
+    handleLogout() {
+      this.$emit('logout')
+      this.mostrarMenu = false
     }
   }
 };

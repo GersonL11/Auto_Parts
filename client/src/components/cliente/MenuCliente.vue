@@ -1,68 +1,30 @@
 <template>
   <div>
-    <!-- Botón de login o cuenta, solo uno visible a la vez, FLOTANTE y con fuente Orbitron -->
-    <button
-      v-if="!usuario && !showLogin"
-      class="menu-float-btn"
-      @click="$emit('show-login')"
-    >
-      <i class="fas fa-user" style="font-size:1.2em;"></i>
-      Iniciar sesión
-    </button>
-    <button
-      v-else-if="usuario && usuario.rol === 'cliente' && !showMenu && !showLogin"
-      class="menu-float-btn"
-      @click="$emit('open-menu')"
-    >
-      <i class="fas fa-user" style="font-size:1.2em;"></i>
-      {{ usuario.username || usuario.nombre || 'Mi cuenta' }}
-    </button>
-    <!-- Página de menú de cliente -->
-    <div v-if="usuario && usuario.rol === 'cliente' && showMenu" class="menu-cliente-page">
-      <div class="menu-cliente-header">
-        <button class="menu-cliente-volver" @click="$emit('close-menu')">
-          <i class="fas fa-arrow-left"></i> Volver
-        </button>
-        <h1><i class="fas fa-user-circle"></i> Mi Cuenta</h1>
-      </div>
-      <div class="menu-cliente-content">
-        <section class="perfil-section">
-          <h2>Editar Perfil</h2>
-          <form @submit.prevent="actualizarDatos" class="perfil-form">
-            <label>
-              Nombre:
-              <input v-model="form.nombre" type="text" autocomplete="name" />
-            </label>
-            <label>
-              Usuario:
-              <input v-model="form.username" type="text" autocomplete="username" />
-            </label>
-            <label>
-              Email:
-              <input v-model="form.email" type="email" autocomplete="email" />
-            </label>
-            <label>
-              Nueva Contraseña:
-              <input v-model="form.password" type="password" autocomplete="new-password" placeholder="••••••••" />
-            </label>
-            <button type="submit" class="btn-actualizar">Actualizar</button>
-          </form>
-        </section>
-        <hr class="menu-divider" />
-        <section class="carrito-section">
-          <h2><i class="fas fa-shopping-cart"></i> Carrito de Compras</h2>
-          <div class="carrito-list">
-            <p v-if="!usuario.carrito || usuario.carrito.length === 0">Tu carrito está vacío.</p>
-            <ul v-else>
-              <li v-for="(item, idx) in usuario.carrito" :key="idx">
-                <span class="carrito-item-nombre">{{ item.nombre }}</span>
-                <span class="carrito-item-cantidad">x{{ item.cantidad }}</span>
-              </li>
-            </ul>
-          </div>
-        </section>
-      </div>
-    </div>
+    <transition name="slide-menu">
+      <aside v-if="show" class="menu-cliente-sidebar">
+        <div class="menu-cliente-header">
+          <i class="fas fa-user-circle"></i>
+          <span class="menu-cliente-nombre">{{ usuario?.nombre }}</span>
+          <button class="menu-cliente-close" @click="$emit('close')">&times;</button>
+        </div>
+        <div class="menu-cliente-body">
+          <button class="menu-cliente-btn" @click="handleClick('ver-perfil')">
+            <i class="fas fa-id-card"></i> Mi perfil
+          </button>
+          <button class="menu-cliente-btn" @click="handleClick('ver-compras')">
+            <i class="fas fa-shopping-bag"></i> Mis compras
+          </button>
+          <button class="menu-cliente-btn" @click="handleClick('ver-carrito')">
+            <i class="fas fa-shopping-cart"></i> Carro de compras
+          </button>
+          <hr class="menu-cliente-divider" />
+          <button class="menu-cliente-btn logout" @click="handleClick('logout')">
+            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+          </button>
+        </div>
+      </aside>
+    </transition>
+    <div v-if="show" class="menu-cliente-backdrop" @click="$emit('close')"></div>
   </div>
 </template>
 
@@ -71,230 +33,396 @@ export default {
   name: 'MenuCliente',
   props: {
     usuario: { type: Object, default: null },
-    showLogin: { type: Boolean, default: false },
-    showMenu: { type: Boolean, default: false }
-  },
-  data() {
-    return {
-      form: {
-        nombre: this.usuario?.nombre || '',
-        email: this.usuario?.email || '',
-        username: this.usuario?.username || '',
-        password: ''
-      }
-    }
-  },
-  watch: {
-    usuario: {
-      handler(n) {
-        this.form.nombre = n?.nombre || ''
-        this.form.email = n?.email || ''
-        this.form.username = n?.username || ''
-        this.form.password = ''
-      },
-      deep: true
-    }
+    show: { type: Boolean, default: true }
   },
   methods: {
-    actualizarDatos() {
-      // Solo envía password si fue modificada
-      const payload = {
-        nombre: this.form.nombre,
-        email: this.form.email,
-        username: this.form.username
-      }
-      if (this.form.password) payload.password = this.form.password
-      this.$emit('update-user', payload)
-      this.form.password = ''
+    handleClick(event) {
+      this.$emit(event);
+      this.$emit('close'); // Cierra el menú después de la acción
     }
   }
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
-.menu-float-btn {
-  position: fixed;
-  top: 18px;
-  right: 32px;
-  z-index: 10001;
-  border: none;
-  background: linear-gradient(90deg, #ff9800 0%, #42b983 100%);
-  color: #fff;
-  font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
-  font-weight: 700;
-  border-radius: 16px;
-  padding: 0.6em 2em;
-  font-size: 1.13em;
-  display: flex;
-  align-items: center;
-  gap: 0.7em;
-  box-shadow: 0 2px 12px #1e3c7240;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
-}
-.menu-float-btn:hover {
-  background: linear-gradient(90deg, #42b983 0%, #ff9800 100%);
-  color: #fff;
-  box-shadow: 0 6px 24px #42b98355;
-  transform: translateY(-2px) scale(1.06);
-}
-.menu-float-btn i {
-  color: #232b36;
-  margin-right: 0.5em;
-}
-.menu-cliente-page {
-  min-height: 100vh;
-  width: 100vw;
-  background: linear-gradient(135deg, #42b983 0%, #f9a825 100%);
+/* --- PREMIUM CLIENT SIDEBAR & MODALS --- */
+.menu-cliente-sidebar {
+  background: rgba(255,255,255,0.18);
+  border-radius: 2rem 0 0 2rem;
+  box-shadow: 0 12px 48px 0 #1e3c7260, 0 2px 12px #42b98333;
+  border: 1.5px solid rgba(66,185,131,0.18);
+  backdrop-filter: blur(16px) saturate(1.5);
+  padding: 2.7rem 2.2rem 2.2rem 2.2rem;
+  max-width: 420px;
+  width: 350px;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding-top: 0;
-  animation: fadeIn 0.7s;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  z-index: 30010;
+  animation: slideInMenu 0.3s cubic-bezier(.4,0,.2,1);
+  transition: box-shadow 0.2s, border 0.2s, background 0.2s;
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+@keyframes slideInMenu {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.slide-menu-enter-active, .slide-menu-leave-active {
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s;
+}
+.slide-menu-enter-from, .slide-menu-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 .menu-cliente-header {
-  width: 100vw;
-  background: rgba(255,255,255,0.98);
-  box-shadow: 0 2px 16px #1e3c7240;
-  padding: 1.2rem 0 0.7rem 0;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  position: relative;
-}
-.menu-cliente-header h1 {
-  font-family: 'Orbitron', Arial, sans-serif;
-  font-size: 2.1rem;
-  color: #1e3c72;
-  margin: 0 auto;
-  font-weight: 900;
-  letter-spacing: 1px;
-  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.7em;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e3c72;
+  margin-bottom: 2.1rem;
+  letter-spacing: 0.5px;
+  width: 100%;
+  border-bottom: none;
+  padding-bottom: 0;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
-.menu-cliente-header .menu-cliente-volver {
+.menu-cliente-header i {
+  font-size: 3.2rem;
+  color: #fff;
+  background: linear-gradient(135deg, #42b983 60%, #1e3c72 100%);
+  border-radius: 50%;
+  padding: 0.5em 0.6em;
+  box-shadow: 0 4px 24px #42b98355, 0 1.5px 0 #fff4 inset;
+  border: 3.5px solid #fff;
+  margin-bottom: 0.5rem;
+}
+.menu-cliente-nombre {
+  font-weight: 800;
+  font-size: 1.08rem;
+  color: #fff;
+  background: none;
+  letter-spacing: 0.2px;
+  text-align: center;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+.menu-cliente-close {
+  background: rgba(255,255,255,0.7);
+  border: none;
+  font-size: 2.1rem;
+  color: #ff5252;
+  cursor: pointer;
   position: absolute;
-  left: 36px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #fff;
+  top: 1.1rem;
+  right: 1.3rem;
+  transition: color 0.18s, background 0.18s, transform 0.18s;
+  border-radius: 50%;
+  padding: 0.18em 0.5em;
+  box-shadow: 0 2px 8px #ff525222;
+  z-index: 2;
+}
+.menu-cliente-close:hover {
+  color: #fff;
+  background: #ff5252;
+  transform: scale(1.12) rotate(8deg);
+}
+.menu-cliente-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 0.2rem;
+  width: 100%;
+}
+.menu-cliente-btn {
+  background: rgba(255,255,255,0.7);
   color: #1e3c72;
   border: none;
-  border-radius: 20px;
-  padding: 0.5em 1.5em;
+  border-radius: 12px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.99rem;
   font-weight: 700;
-  font-size: 1em;
-  box-shadow: 0 2px 8px #1e3c7240;
+  letter-spacing: 0.1px;
+  box-shadow: 0 1px 8px #42b98311;
   cursor: pointer;
+  outline: none;
   display: flex;
   align-items: center;
-  gap: 0.5em;
+  gap: 0.7rem;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  margin-bottom: 0.1rem;
+  text-shadow: none;
+  position: relative;
+  overflow: hidden;
 }
-.menu-cliente-content {
-  background: rgba(255,255,255,0.97);
-  padding: 2.5rem 3rem;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(30,60,114,0.18);
+.menu-cliente-btn i {
+  font-size: 1.08rem;
+  background: #fff;
+  border-radius: 50%;
+  padding: 0.13em 0.25em;
+  box-shadow: 0 1px 4px #42b98311;
+  color: #42b983;
+  border: 1px solid #e0e7ef;
+}
+.menu-cliente-btn:hover {
+  background: linear-gradient(90deg, #42b983 0%, #1e3c72 100%);
+  color: #fff;
+  box-shadow: 0 12px 36px #1e3c7244;
+  transform: translateY(-2px) scale(1.05);
+}
+.menu-cliente-btn:hover i {
+  color: #fff;
+  background: #42b983;
+  border: 1px solid #1e3c72;
+}
+.menu-cliente-btn.logout {
+  background: linear-gradient(90deg, #ff9800 0%, #ff5252 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px #ff980011;
+  border: none;
+  font-size: 0.99rem;
+  padding: 0.65rem 0.9rem;
+}
+.menu-cliente-btn.logout i {
+  color: #ff5252;
+  background: #fff8f8;
+  border: 1px solid #ffbdbd;
+}
+.menu-cliente-btn.logout:hover {
+  background: linear-gradient(90deg, #ff5252 0%, #ff9800 100%);
+  color: #fff;
+  box-shadow: 0 6px 18px #ff525211;
+}
+.menu-cliente-btn.logout:hover i {
+  color: #fff;
+  background: #ff5252;
+  border: 1px solid #ff9800;
+}
+.menu-cliente-divider {
+  border: none;
+  border-top: 1.5px solid #e0e7ef;
+  margin: 1.5rem 0 1rem 0;
+  box-shadow: none;
+}
+.menu-cliente-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 60, 114, 0.10);
+  z-index: 30000;
+  backdrop-filter: blur(2.5px) saturate(1.05);
+}
+
+/* --- MODAL PERFIL PREMIUM, GLASS, MODERNO Y CREATIVO --- */
+.perfil-cliente-modal {
+  background: rgba(255,255,255,0.18);
+  border-radius: 2rem;
+  box-shadow: 0 12px 48px 0 #1e3c7260, 0 2px 12px #42b98333;
+  padding: 2.7rem 2.2rem 2.2rem 2.2rem;
+  max-width: 420px;
+  width: 98vw;
+  margin: 0 auto;
+  border: 1.5px solid rgba(66,185,131,0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  animation: fadeInPerfil 0.5s cubic-bezier(.4,0,.2,1);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  backdrop-filter: blur(16px) saturate(1.5);
+  overflow: hidden;
+}
+@keyframes fadeInPerfil {
+  from { opacity: 0; transform: translateY(32px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.perfil-cliente-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7em;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e3c72;
+  margin-bottom: 2.1rem;
+  letter-spacing: 0.5px;
+  width: 100%;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.perfil-cliente-header i {
+  font-size: 3.2rem;
+  color: #fff;
+  background: linear-gradient(135deg, #42b983 60%, #1e3c72 100%);
+  border-radius: 50%;
+  padding: 0.5em 0.6em;
+  box-shadow: 0 4px 24px #42b98355, 0 1.5px 0 #fff4 inset;
+  border: 3.5px solid #fff;
+  margin-bottom: 0.5rem;
+}
+.perfil-cliente-header span {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #1e3c72;
+  background: none;
+  letter-spacing: 0.2px;
   text-align: center;
-  min-width: 320px;
-  max-width: 95vw;
-  margin-top: 30px;
+}
+.perfil-cliente-close {
+  background: rgba(255,255,255,0.7);
+  border: none;
+  font-size: 2.1rem;
+  color: #ff5252;
+  cursor: pointer;
+  position: absolute;
+  top: 1.1rem;
+  right: 1.3rem;
+  transition: color 0.18s, background 0.18s, transform 0.18s;
+  border-radius: 50%;
+  padding: 0.18em 0.5em;
+  box-shadow: 0 2px 8px #ff525222;
+  z-index: 2;
+}
+.perfil-cliente-close:hover {
+  color: #fff;
+  background: #ff5252;
+  transform: scale(1.12) rotate(8deg);
+}
+.perfil-cliente-form {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1.2rem;
 }
-.perfil-section {
-  margin-bottom: 1.5rem;
+.perfil-cliente-form-group {
+  position: relative;
+  margin-bottom: 0.5rem;
 }
-.perfil-form label {
-  display: block;
-  margin-bottom: 1em;
-  color: #222;
-  text-align: left;
-  font-weight: 600;
-}
-.perfil-form input {
+.perfil-cliente-form input {
   width: 100%;
-  padding: 0.5em;
-  margin-top: 0.2em;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1em;
+  padding: 1.1rem 1rem 0.5rem 1rem;
+  border-radius: 10px;
+  border: none;
+  border-bottom: 2.5px solid #d1d5db;
+  font-size: 1.13rem;
+  font-weight: 500;
+  color: #1e3c72;
+  background: rgba(255,255,255,0.7);
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  box-shadow: 0 1px 8px #42b98311;
 }
-.btn-actualizar {
-  background: linear-gradient(90deg, #42b983 0%, #ff9800 100%);
+.perfil-cliente-form input:focus {
+  border-bottom: 2.5px solid #42b983;
+  background: #fff;
+}
+.perfil-cliente-form label {
+  position: absolute;
+  left: 1rem;
+  top: 1.1rem;
+  color: #888;
+  font-size: 1.01rem;
+  font-weight: 600;
+  pointer-events: none;
+  transition: 0.18s cubic-bezier(.4,0,.2,1);
+  background: transparent;
+}
+.perfil-cliente-form input:focus + label,
+.perfil-cliente-form input:not(:placeholder-shown) + label {
+  top: -0.7rem;
+  left: 0.7rem;
+  font-size: 0.89rem;
+  color: #42b983;
+  background: #fff;
+  padding: 0 0.3em;
+  border-radius: 6px;
+}
+.perfil-cliente-btn {
+  width: 100%;
+  margin: 1.5rem 0 0.7rem 0;
+  padding: 1.2rem 0;
+  border-radius: 16px;
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  background: linear-gradient(90deg, #42b983 0%, #1e3c72 100%);
   color: #fff;
   border: none;
-  padding: 0.7em 2em;
-  border-radius: 30px;
+  box-shadow: 0 8px 32px #42b98333, 0 1.5px 0 #fff4 inset;
+  font-family: inherit;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
+  backdrop-filter: blur(2px);
+}
+.perfil-cliente-btn:hover {
+  background: linear-gradient(90deg, #1e3c72 0%, #42b983 100%);
+  color: #fff;
+  box-shadow: 0 12px 36px #1e3c7244;
+  transform: translateY(-2px) scale(1.05);
+}
+.perfil-cliente-btn.restablecer {
+  background: linear-gradient(90deg, #ff9800 0%, #ff5252 100%);
+  color: #fff;
+  font-size: 1.09rem;
   font-weight: 700;
-  cursor: pointer;
-  font-size: 1.1em;
-  margin-top: 1em;
-  transition: background 0.18s, box-shadow 0.18s;
-  box-shadow: 0 2px 8px #1e3c7240;
-}
-.btn-actualizar:hover {
-  background: linear-gradient(90deg, #ff9800 0%, #42b983 100%);
-  box-shadow: 0 6px 24px #42b98355;
-}
-.menu-divider {
+  margin-top: 1.2rem;
+  margin-bottom: 0.2rem;
+  box-shadow: 0 2px 8px #ff980011;
   border: none;
-  border-top: 2px solid #eee;
-  margin: 2.5rem 0 1.5rem 0;
 }
-.carrito-section h2 {
-  color: #1e3c72;
-  font-size: 1.3rem;
-  font-weight: 800;
-  margin-bottom: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  justify-content: center;
+.perfil-cliente-btn.restablecer:hover {
+  background: linear-gradient(90deg, #ff5252 0%, #ff9800 100%);
+  color: #fff;
+  box-shadow: 0 6px 18px #ff525211;
 }
-.carrito-list {
-  text-align: left;
-  margin: 0 auto;
-  max-width: 400px;
-}
-.carrito-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.carrito-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.7em 0.5em;
-  border-bottom: 1px solid #eee;
-  font-size: 1.08em;
-}
-.carrito-item-nombre {
-  font-weight: 600;
-  color: #222;
-}
-.carrito-item-cantidad {
-  font-weight: 700;
+.perfil-cliente-exito {
   color: #42b983;
+  font-weight: 700;
+  margin-top: 0.7rem;
+  font-size: 1.05rem;
+  text-align: center;
+}
+.perfil-cliente-error {
+  color: #ff5252;
+  font-weight: 700;
+  margin-top: 0.7rem;
+  font-size: 1.05rem;
+  text-align: center;
 }
 @media (max-width: 600px) {
-  .menu-cliente-content {
-    padding: 1.2rem 0.7rem;
-    min-width: unset;
+  .menu-cliente-sidebar {
+    width: 99vw;
+    padding: 1rem 0.5rem 1rem 0.5rem;
+    border-radius: 0;
+    border-width: 0 0 0 3px;
   }
-  .menu-cliente-header h1 {
-    font-size: 1.2rem;
+  .perfil-cliente-modal {
+    padding: 1.2rem 0.3rem 1.2rem 0.3rem;
+    border-radius: 1.1rem;
+    max-width: 99vw;
   }
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-30px);}
-  to { opacity: 1; transform: translateY(0);}
+  .perfil-cliente-header {
+    font-size: 1rem;
+    gap: 0.5em;
+    padding-bottom: 0.5rem;
+  }
+  .perfil-cliente-header i {
+    font-size: 2.2rem;
+    padding: 0.3em 0.4em;
+  }
+  .perfil-cliente-form input {
+    font-size: 0.99rem;
+    padding: 0.7rem 0.4rem 0.4rem 0.4rem;
+  }
+  .perfil-cliente-btn {
+    font-size: 1.01rem;
+    padding: 0.9rem 0;
+  }
 }
 </style>

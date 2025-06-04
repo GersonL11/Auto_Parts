@@ -43,7 +43,7 @@
           <span class="lights-detail">Incluye: faros, stops, espejos, defensas...</span>
         </div>
         <div class="btn-row">
-          <button class="purchase-btn lights-btn" @click="$emit('ver-piezas', 'Luces y Carrocería')">Ver piezas</button>
+          <button class="purchase-btn lights-btn" @click="$emit('ver-piezas', 'Luces')">Ver piezas</button>
         </div>
       </div>
     </div>

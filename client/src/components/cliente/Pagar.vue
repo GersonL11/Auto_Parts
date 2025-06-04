@@ -188,17 +188,16 @@ export default {
 <style scoped>
 .pagar-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #00eaff11 0%, #42b98311 100%);
+  background: rgba(20, 40, 80, 0.32);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: 30000;
-  /* Blur al fondo */
-  backdrop-filter: blur(7px) brightness(0.98);
-  -webkit-backdrop-filter: blur(7px) brightness(0.98);
+  backdrop-filter: blur(24px) saturate(1.7);
+  -webkit-backdrop-filter: blur(24px) saturate(1.7);
 }
 .fade-in {
   animation: fadeInSoft 0.7s cubic-bezier(.4,0,.2,1);
@@ -208,9 +207,9 @@ export default {
   to { opacity: 1; transform: translateY(0) scale(1);}
 }
 .pagar-container {
-  background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 8px 40px #00eaff33, 0 2px 8px #1e3c7211;
+  background: rgba(30, 60, 114, 0.22);
+  border-radius: 2rem;
+  box-shadow: 0 12px 48px 0 #1e3c7260, 0 2px 12px #42b98333;
   padding: 2.5rem 2.5rem 2rem 2.5rem;
   min-width: 340px;
   max-width: 900px;
@@ -219,6 +218,10 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  max-height: 96vh;
+  overflow-y: auto;
 }
 .pagar-cerrar {
   position: absolute;
@@ -227,25 +230,35 @@ export default {
   background: none;
   border: none;
   font-size: 2rem;
-  color: #b0bec5;
+  color: #b0b0b0;
   cursor: pointer;
   transition: color 0.18s;
   z-index: 2;
+  border-radius: 50%;
+  width: 2.7rem;
+  height: 2.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
 }
 .pagar-cerrar:hover {
-  color: #ff9800;
+  color: #ff5252;
+  background: none;
+  transform: scale(1.12) rotate(8deg);
 }
 .pagar-title {
   font-size: 2.1rem;
   font-weight: 900;
-  color: #1e3c72;
+  color: #fff;
   margin-bottom: 1.5rem;
   letter-spacing: 1.2px;
   text-align: center;
-  font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  text-shadow: 0 2px 8px #1e3c7260;
 }
 .pagar-content {
   display: flex;
@@ -258,18 +271,22 @@ export default {
   flex: 1 1 320px;
   min-width: 280px;
   max-width: 380px;
-  background: #fafdff;
+  background: rgba(255,255,255,0.22);
   border-radius: 18px;
   box-shadow: 0 2px 8px #00eaff11;
   padding: 1.5rem 1.2rem 1.2rem 1.2rem;
   margin-bottom: 1.2rem;
+  color: #fff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .pagar-resumen h3 {
   font-size: 1.18rem;
   font-weight: 800;
-  color: #232b36;
+  color: #fff;
   margin-bottom: 1.1rem;
   letter-spacing: 1px;
+  text-shadow: 0 2px 8px #1e3c7260;
 }
 .pagar-lista {
   list-style: none;
@@ -318,8 +335,9 @@ export default {
 }
 .pagar-item-precio {
   font-weight: 900;
-  color: #00bcd4;
-  font-size: 1.13rem;
+  color: #42b983; /* verde visible */
+  font-size: 1.25rem;
+  text-shadow: none;
   min-width: 90px;
   text-align: right;
 }
@@ -329,15 +347,22 @@ export default {
   align-items: center;
   font-size: 1.18rem;
   font-weight: 900;
-  color: #1e3c72;
+  color: #fff;
   border-top: 1.5px solid #e0e0e0;
   padding-top: 0.7rem;
   margin-top: 0.7rem;
 }
+.pagar-total-row span:first-child {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.13rem;
+  text-shadow: 0 2px 8px #1e3c7260;
+}
 .pagar-total {
-  color: #42b983;
-  font-size: 1.25rem;
-  letter-spacing: 1px;
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 900;
+  text-shadow: none;
 }
 .pagar-form {
   flex: 1 1 320px;
@@ -346,24 +371,28 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
-  background: #fafdff;
+  background: rgba(255,255,255,0.22);
   border-radius: 18px;
   box-shadow: 0 2px 8px #00eaff11;
   padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  color: #fff;
+  backdrop-filter: blur(8px) saturate(1.2);
 }
 .pagar-form h3 {
   font-size: 1.13rem;
   font-weight: 800;
-  color: #232b36;
+  color: #fff;
   margin-bottom: 0.7rem;
   letter-spacing: 1px;
+  text-shadow: 0 2px 8px #1e3c7260;
 }
 .pagar-form label {
   display: block;
-  color: #232b36;
+  color: #fff;
   font-weight: 600;
   margin-bottom: 0.2rem;
   font-size: 1.01rem;
+  text-shadow: 0 2px 8px #1e3c7260;
 }
 .pagar-form input[type="text"],
 .pagar-form input[type="email"],
@@ -377,10 +406,13 @@ export default {
   margin-bottom: 0.5em;
   font-family: inherit;
   outline: none;
-  transition: border 0.18s;
+  background: rgba(255,255,255,0.7);
+  color: #1e3c72;
+  transition: border 0.18s, background 0.18s;
 }
 .pagar-form input:focus {
   border: 1.5px solid #00eaff;
+  background: #fff;
 }
 .pagar-metodos {
   display: flex;
@@ -395,6 +427,7 @@ export default {
   font-weight: 600;
   font-size: 1.01rem;
   cursor: pointer;
+  color: #fff;
 }
 .pagar-metodo input[type="radio"] {
   accent-color: #42b983;
@@ -441,6 +474,7 @@ export default {
   font-weight: 700;
   margin-top: 0.7rem;
   text-align: center;
+  text-shadow: 0 2px 8px #fff;
 }
 .pagar-exito {
   position: fixed;
@@ -476,6 +510,8 @@ export default {
     min-width: unset;
     max-width: 99vw;
     padding: 1.2rem 0.5rem 1rem 0.5rem;
+    max-height: 99vh;
+    overflow-y: auto;
   }
   .pagar-content {
     flex-direction: column;

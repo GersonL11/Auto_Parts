@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{ 'modal-open': showLogin || mostrarCarrito }">
+  <div id="app" :class="{ 'modal-open': showLogin || mostrarCarrito || mostrarPerfilCliente || mostrarComprasCliente }">
     <HomePage
       v-if="currentPage === 'home' && !showLogin"
       :usuario="usuario"
@@ -42,6 +42,40 @@
     />
     <!-- Menú lateral solo si el usuario es admin y currentPage es 'admin' -->
     <AdminLayout v-if="usuario && usuario.rol === 'admin' && currentPage === 'admin'" @navigate="handleSidebarNav" />
+    <!-- Header solo si no está el login -->
+    <AppHeader
+      v-if="!showLogin"
+      :current="currentPage"
+      :usuario="usuario"
+      @show-login="showLogin = true"
+      @go-home="goTo('home')"
+      @show-about="goTo('about')"
+      @show-contact="goTo('contact')"
+      @show-parts="goTo('parts')"
+      @logout="logout"
+      @abrir-menu-cliente="mostrarMenuCliente = true"
+    />
+    <MenuCliente
+      v-if="mostrarMenuCliente"
+      :usuario="usuario"
+      :show="mostrarMenuCliente"
+      @close="mostrarMenuCliente = false"
+      @ver-perfil="abrirPerfilCliente"
+      @ver-compras="abrirComprasCliente"
+      @ver-carrito="mostrarCarrito = true"
+      @logout="logout"
+    />
+    <PerfilCliente
+      v-if="mostrarPerfilCliente"
+      :usuario="usuario"
+      @close="mostrarPerfilCliente = false"
+      @usuario-actualizado="handleUsuarioActualizado"
+    />
+    <ComprasCliente
+      v-if="mostrarComprasCliente"
+      :usuario="usuario"
+      @close="mostrarComprasCliente = false"
+    />
     <FooterAutoParts
       v-if="!usuario || (usuario && usuario.rol !== 'admin')"
       @show-parts="handleFooterNav('parts')"
@@ -82,6 +116,10 @@ import AdminLayout from './components/admin/AdminLayout.vue'
 import CarritoFloatBtn from './components/cliente/Carrito.vue'
 import CarritoModal from './components/cliente/CarritoModal.vue'
 import Pagar from './components/cliente/Pagar.vue'
+import AppHeader from './components/cliente/AppHeader.vue'
+import MenuCliente from './components/cliente/MenuCliente.vue'
+import ComprasCliente from './components/cliente/ComprasCliente.vue'
+import PerfilCliente from './components/cliente/PerfilCliente.vue'
 
 export default {
   name: 'App',
@@ -96,7 +134,11 @@ export default {
     AdminLayout,
     CarritoFloatBtn,
     CarritoModal,
-    Pagar
+    Pagar,
+    AppHeader,
+    MenuCliente,
+    ComprasCliente,
+    PerfilCliente
   },
   data() {
     return {
@@ -107,7 +149,10 @@ export default {
       mostrarCarrito: false,
       totalCarrito: 0,
       mostrarPagar: false,
-      carritoParaPagar: []
+      carritoParaPagar: [],
+      mostrarMenuCliente: false,
+      mostrarPerfilCliente: false,
+      mostrarComprasCliente: false
     }
   },
   created() {
@@ -245,6 +290,22 @@ export default {
     _actualizarTotalCarritoDesdeStorage: function() {
       const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
       this.totalCarrito = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+    },
+    handleUsuarioActualizado(usuario) {
+      this.usuario = usuario;
+      localStorage.setItem('autoparts_user', JSON.stringify(usuario));
+    },
+    abrirPerfilCliente() {
+      this.mostrarMenuCliente = false;
+      this.$nextTick(() => {
+        this.mostrarPerfilCliente = true;
+      });
+    },
+    abrirComprasCliente() {
+      this.mostrarMenuCliente = false;
+      this.$nextTick(() => {
+        this.mostrarComprasCliente = true;
+      });
     }
   }
 }

@@ -1,8 +1,11 @@
 <template>
   <div class="cart-modal-overlay" @click.self="$emit('close')">
     <div class="cart-modal">
-      <div class="cart-header">
-        <span class="cart-title"><i class="fas fa-shopping-cart"></i> Carrito de Compras</span>
+      <div class="cart-header-row">
+        <div class="cart-header-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <span class="cart-title">Carro de Compras</span>
         <button class="cart-close-btn" @click="$emit('close')" title="Cerrar">&times;</button>
       </div>
       <div class="cart-body">
@@ -22,9 +25,6 @@
               </div>
               <div class="cart-info">
                 <div class="cart-name">{{ item.nombre }}</div>
-                <div class="cart-brand" v-if="item.marca">{{ item.marca }}</div>
-                <div class="cart-desc" v-if="item.descripcion">{{ item.descripcion }}</div>
-                <div class="cart-code" v-if="item.codigo">Código: {{ item.codigo }}</div>
                 <div class="cart-price-row">
                   <span class="cart-price">L{{ item.precio ? Number(item.precio).toLocaleString() : '0.00' }}</span>
                   <span class="cart-stock" v-if="item.maxCantidad">| {{ item.maxCantidad }} disp.</span>
@@ -163,12 +163,12 @@ export default {
 .cart-modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(20, 24, 31, 0.72);
+  background: rgba(30, 60, 114, 0.10);
   z-index: 20000;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(8px) brightness(0.96);
+  backdrop-filter: blur(16px) saturate(1.5);
   animation: fadeInModal 0.5s cubic-bezier(.4,0,.2,1);
 }
 @keyframes fadeInModal {
@@ -176,56 +176,87 @@ export default {
   to { opacity: 1; transform: scale(1);}
 }
 .cart-modal {
-  background: #fff;
-  border-radius: 22px;
-  box-shadow: 0 16px 48px #1e3c7260, 0 2px 8px #42b98322;
-  min-width: 340px;
-  max-width: 99vw;
-  width: 540px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 2rem;
+  box-shadow: 0 12px 48px 0 #1e3c7260, 0 2px 12px #42b98333;
   padding: 2.2rem 2.2rem 1.7rem 2.2rem;
+  max-width: 500px;
+  width: 99vw;
+  margin: 0 auto;
+  border: 1.5px solid rgba(66,185,131,0.18);
   display: flex;
   flex-direction: column;
+  align-items: center;
   position: relative;
-  border: none;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  backdrop-filter: blur(16px) saturate(1.5);
+  overflow: hidden;
 }
-.cart-header {
+.cart-header-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.7rem;
-  border-bottom: 1.5px solid #e0e7ef;
-  padding-bottom: 0.9em;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 2.1rem;
+  position: relative;
+  gap: 1.2rem;
+}
+.cart-header-icon {
+  background: linear-gradient(135deg, #42b983 60%, #1e3c72 100%);
+  border-radius: 50%;
+  padding: 0.5em 0.6em;
+  box-shadow: 0 4px 24px #42b98355, 0 1.5px 0 #fff4 inset;
+  border: 3.5px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.7rem;
+}
+.cart-header-icon i {
+  font-size: 2.5rem;
+  color: #fff;
 }
 .cart-title {
-  font-size: 1.5rem;
-  color: #181c24;
   font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
+  font-size: 1.35rem;
+  color: #fff;
+  letter-spacing: 0.2px;
+  text-align: left;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  flex: 1;
 }
 .cart-close-btn {
   background: none;
   border: none;
-  font-size: 2.1rem;
+  font-size: 2.2rem;
   color: #b0b0b0;
   cursor: pointer;
+  position: absolute;
+  top: -1.2rem;
+  right: -1.2rem;
+  transition: color 0.18s, background 0.18s, transform 0.18s;
+  border-radius: 50%;
   font-weight: 700;
   line-height: 1;
-  padding: 0 0.3em;
-  transition: color 0.18s, transform 0.18s;
+  width: 2.7rem;
+  height: 2.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
 }
 .cart-close-btn:hover {
   color: #ff5252;
-  transform: scale(1.15) rotate(8deg);
+  background: none;
+  transform: scale(1.12) rotate(8deg);
 }
 .cart-body {
   margin-bottom: 1.3rem;
-  max-height: 420px;
+  max-height: 340px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #42b983 #e0e7ef;
+  width: 100%;
 }
 .cart-body::-webkit-scrollbar {
   height: 8px;
@@ -255,18 +286,18 @@ export default {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.5em;
+  gap: 1.1em;
 }
 .cart-item {
   display: flex;
-  align-items: flex-start;
-  background: #fafdff;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px #00eaff11;
+  align-items: center;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #1e3c7211;
   padding: 1.1em 1.1em;
-  gap: 1.5em;
+  gap: 1.1em;
   position: relative;
-  border: 1px solid #e0e0e0;
+  border: none;
   transition: box-shadow 0.18s, transform 0.18s, background 0.18s;
 }
 .cart-item:hover {
@@ -282,14 +313,14 @@ export default {
   justify-content: center;
   background: #f6f8fa;
   border-radius: 14px;
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   overflow: hidden;
   box-shadow: 0 1px 8px #1e3c7211;
 }
 .cart-img {
-  width: 90px;
-  height: 90px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   border-radius: 10px;
   display: block;
@@ -306,47 +337,31 @@ export default {
   font-weight: 700;
   color: #181c24;
   text-align: left;
-  font-size: 1.18em;
+  font-size: 1.13em;
   letter-spacing: 0.1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px;
-  cursor: pointer;
-  transition: color 0.18s;
-}
-.cart-name:hover {
-  color: #42b983;
-}
-.cart-brand {
-  color: #42b983;
-  font-size: 0.98em;
-  font-weight: 600;
-}
-.cart-desc, .cart-code {
-  color: #444;
-  font-size: 0.97em;
-  margin-bottom: 0.1em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 220px;
+  max-width: 160px;
+  margin-bottom: 0.2em;
 }
 .cart-price-row {
   font-size: 1em;
   color: #00bcd4;
-  margin: 0.2em 0 0.3em 0;
+  margin: 0.1em 0 0.2em 0;
   display: flex;
   align-items: center;
   gap: 0.7em;
 }
 .cart-price {
   font-weight: 700;
-  color: #00bcd4;
+  color: #1e3c72;
+  font-size: 1.08em;
 }
 .cart-stock {
-  color: #888;
-  font-size: 0.93em;
+  color: #42b983;
+  font-size: 0.97em;
+  font-weight: 600;
 }
 .cart-qty-row {
   display: flex;
@@ -393,9 +408,10 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.5em;
-  min-width: 100px;
+  gap: 0.2em;
+  min-width: 90px;
   padding-top: 0.2em;
+  margin-left: 0.5em;
 }
 .cart-subtotal-label {
   font-size: 0.93em;
@@ -403,7 +419,7 @@ export default {
 }
 .cart-subtotal-value {
   font-weight: 800;
-  color: #42b983;
+  color: #30c16c;
   font-size: 1.18em;
   letter-spacing: 0.1px;
 }
@@ -422,44 +438,55 @@ export default {
   transform: scale(1.18) rotate(-10deg);
 }
 .cart-clear-btn {
-  background: #f6f8fa;
-  color: #1e3c72;
+  background: none;
+  color: #ff5252;
   border: none;
   border-radius: 16px;
-  padding: 0.5em 1.2em;
+  padding: 0.2em 0.7em;
   font-weight: 700;
-  margin: 1.2em 0 0 0;
+  margin: 0.7em 0 0 0;
   cursor: pointer;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  font-size: 1em;
+  transition: color 0.18s, text-decoration 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  box-shadow: none;
+  text-decoration: underline dotted 1.5px #ff5252;
 }
 .cart-clear-btn:hover {
-  background: #ff5252;
   color: #fff;
-  box-shadow: 0 4px 18px #ff525244;
+  background: #ff5252;
+  text-decoration: underline solid 2px #fff;
+  box-shadow: none;
 }
 .cart-footer {
   width: 100%;
-  margin-top: 1.5rem;
+  margin-top: 1.2rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 1em;
 }
 .cart-summary {
-  background: #f3f4f6;
-  border-radius: 10px;
-  padding: 1rem 1.2rem;
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.1rem 1.2rem 1.1rem 1.2rem;
   font-size: 1.13em;
   display: flex;
   flex-direction: column;
   gap: 0.5em;
-  box-shadow: 0 1px 4px #00eaff11;
+  box-shadow: 0 2px 12px #1e3c7211;
   width: 100%;
+  margin-bottom: 0.2em;
 }
 .cart-summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 1.08em;
+  color: #1e3c72;
+  font-weight: 700;
 }
 .cart-summary-total {
   font-size: 1.18em;
@@ -474,20 +501,25 @@ export default {
   font-size: 1.22em;
   margin-left: 0.5em;
   letter-spacing: 0.5px;
+  font-weight: 900;
 }
 .cart-pay-btn {
   background: linear-gradient(90deg, #30c16c 0%, #ff9800 100%);
   color: #fff;
   border: none;
-  padding: 0.7em 1.8em;
+  padding: 0.9em 2.2em;
   border-radius: 20px;
   font-weight: 800;
   margin-top: 0.2em;
   cursor: pointer;
-  font-size: 1em;
+  font-size: 1.13em;
   transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
   box-shadow: 0 4px 16px #30c16c33, 0 2px 8px #ff980044;
   letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
 }
 .cart-pay-btn:hover {
   background: linear-gradient(90deg, #ff9800 0%, #30c16c 100%);
@@ -522,33 +554,44 @@ export default {
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
-/* Responsive */
 @media (max-width: 900px) {
   .cart-modal {
+    padding: 1.2rem 0.3rem 1.2rem 0.3rem;
+    border-radius: 1.1rem;
+    max-width: 99vw;
     width: 99vw;
-    padding: 1.1rem 0.5rem 1rem 0.5rem;
-    min-width: unset;
+  }
+  .cart-header-row {
+    gap: 0.7rem;
+  }
+  .cart-header-icon {
+    padding: 0.3em 0.4em;
+  }
+  .cart-header-icon i {
+    font-size: 1.7rem;
   }
   .cart-item {
     padding: 0.7em 0.2em;
     gap: 0.7em;
   }
   .cart-img-wrap {
-    width: 60px;
-    height: 60px;
+    width: 44px;
+    height: 44px;
   }
   .cart-img {
-    width: 56px;
-    height: 56px;
+    width: 40px;
+    height: 40px;
   }
-  .cart-name,
-  .cart-desc,
-  .cart-code {
-    max-width: 120px;
+  .cart-name {
+    max-width: 90px;
   }
   .cart-summary {
     padding: 0.7em 0.5em;
     border-radius: 8px;
+  }
+  .cart-pay-btn {
+    font-size: 1em;
+    padding: 0.7em 1.2em;
   }
 }
 </style>
