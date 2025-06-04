@@ -43,11 +43,11 @@ export default {
   name: 'AboutUsSection',
   data() {
     return {
-      img1: require('../assets/staff1.jpg'),
-      img2: require('../assets/staff2.jpg'),
-      img3: require('../assets/staff3.jpg'),
-      img4: require('../assets/staff4.png'),
-      img5: require('../assets/staff1.jpg'),
+      img1: require('../../assets/staff1.jpg'),
+      img2: require('../../assets/staff2.jpg'),
+      img3: require('../../assets/staff3.jpg'),
+      img4: require('../../assets/staff4.png'),
+      img5: require('../../assets/staff1.jpg'),
     }
   }
 }

@@ -63,7 +63,7 @@
             @keyup.enter="showDetalle(pieza)"
           >
             <div class="amazon-card-img-wrap">
-              <img :src="pieza.imagen || require('../assets/Piezas/alternador.jpg')" :alt="pieza.nombre" class="amazon-card-img" />
+              <img :src="pieza.imagen || require('../../assets/Piezas/alternador.jpg')" :alt="pieza.nombre" class="amazon-card-img" />
             </div>
             <div class="amazon-card-body">
               <div class="amazon-card-title-row">
@@ -106,7 +106,7 @@
     <div v-if="piezaSeleccionada" class="pieza-modal-bg" @click.self="piezaSeleccionada = null">
       <div class="pieza-modal">
         <button class="pieza-modal-close" @click="piezaSeleccionada = null"><i class="fas fa-times"></i></button>
-        <img :src="piezaSeleccionada.imagen || require('../assets/Piezas/alternador.jpg')" :alt="piezaSeleccionada.nombre" class="pieza-modal-img" />
+        <img :src="piezaSeleccionada.imagen || require('../../assets/Piezas/alternador.jpg')" :alt="piezaSeleccionada.nombre" class="pieza-modal-img" />
         <h3><i class="fas fa-tools"></i> {{ piezaSeleccionada.nombre }}</h3>
         <div class="pieza-modal-cat">
           <i class="fas fa-industry"></i> {{ piezaSeleccionada.marca }}

@@ -14,9 +14,9 @@
       <section class="aboutus-hero">
         <div class="aboutus-hero-img-col">
           <div class="aboutus-img-main-wrap">
-            <img class="aboutus-img-main" :src="require('../assets/sobreNosotros.png')" alt="Autopartes" />
+            <img class="aboutus-img-main" :src="require('../../assets/sobreNosotros.png')" alt="Autopartes" />
             <div class="aboutus-img-overlay">
-              <img :src="require('../assets/sobreNosotros2.png')" alt="Rueda y repuestos" />
+              <img :src="require('../../assets/sobreNosotros2.png')" alt="Rueda y repuestos" />
             </div>
           </div>
         </div>

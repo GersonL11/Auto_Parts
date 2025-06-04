@@ -1,7 +1,7 @@
 <template>
   <header class="app-header">
     <div class="header-left">
-      <img :src="require('../assets/logopart.png')" alt="AutoParts Logo" class="header-logo" />
+      <img :src="require('../../assets/logopart.png')" alt="AutoParts Logo" class="header-logo" />
       <span class="header-title">
         <i class="fas fa-cogs header-icon"></i>
         AutoParts
@@ -58,7 +58,6 @@
         <i class="fas fa-user-circle"></i>
         {{ usuario.nombre }}
       </button>
-      <!-- Aquí puedes agregar un menú desplegable de usuario si lo deseas -->
     </div>
   </header>
 </template>

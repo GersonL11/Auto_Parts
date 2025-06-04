@@ -7,7 +7,7 @@
         muted
         loop
         playsinline
-        :poster="require('../../public/images/02.jpg')"
+        :poster="'/images/02.jpg'"
         preload="auto"
       >
         <source src="/images/background.mp4#t=0" type="video/mp4" />

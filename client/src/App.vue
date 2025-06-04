@@ -71,17 +71,17 @@
 </template>
 
 <script>
-import HomePage from './components/Home.vue'
-import LoginForm from './components/LoginForm.vue'
-import AboutUs from './components/AboutUs.vue'
-import Contact from './components/Contact.vue'
-import CatalogoPiezas from './components/Piezas.vue'
-import FooterAutoParts from './components/FooterAutoParts.vue'
-import ScrollToTop from './components/ScrollToTop.vue'
+import HomePage from './components/cliente/Home.vue'
+import LoginForm from './components/cliente/LoginForm.vue'
+import AboutUs from './components/cliente/AboutUs.vue'
+import Contact from './components/cliente/Contact.vue'
+import CatalogoPiezas from './components/cliente/Piezas.vue'
+import FooterAutoParts from './components/cliente/FooterAutoParts.vue'
+import ScrollToTop from './components/cliente/ScrollToTop.vue'
 import AdminLayout from './components/admin/AdminLayout.vue'
-import CarritoFloatBtn from './components/Carrito.vue'
-import CarritoModal from './components/CarritoModal.vue'
-import Pagar from './components/Pagar.vue'
+import CarritoFloatBtn from './components/cliente/Carrito.vue'
+import CarritoModal from './components/cliente/CarritoModal.vue'
+import Pagar from './components/cliente/Pagar.vue'
 
 export default {
   name: 'App',

@@ -8,7 +8,7 @@
           <h3>Resumen de tu compra</h3>
           <ul class="pagar-lista">
             <li v-for="item in carrito" :key="item._id" class="pagar-item">
-              <img :src="item.img || require('../assets/Piezas/alternador.jpg')" :alt="item.nombre" class="pagar-img" />
+              <img :src="item.img || require('../../assets/Piezas/alternador.jpg')" :alt="item.nombre" class="pagar-img" />
               <div class="pagar-item-info">
                 <div class="pagar-item-nombre">{{ item.nombre }}</div>
                 <div class="pagar-item-detalle">

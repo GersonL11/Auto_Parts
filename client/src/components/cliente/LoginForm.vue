@@ -3,7 +3,7 @@
     <div
       class="bg-overlay image-wrap"
       :style="{
-        backgroundImage: 'url(' + require('../assets/01.jpg') + ')',
+        backgroundImage: 'url(' + require('../../assets/01.jpg') + ')',
         backgroundPosition: 'center',
       }"
     ></div>
@@ -31,7 +31,7 @@
             autocomplete="off"
           >
             <img
-              src="../assets/logopart.png"
+              src="../../assets/logopart.png"
               class="login-logo premium-logo"
               alt="AutoParts"
             />
@@ -105,7 +105,7 @@
             autocomplete="off"
           >
             <img
-              src="../assets/logopart.png"
+              src="../../assets/logopart.png"
               class="login-logo premium-logo"
               alt="AutoParts"
             />
@@ -144,7 +144,7 @@
             autocomplete="off"
           >
             <img
-              src="../assets/logopart.png"
+              src="../../assets/logopart.png"
               class="login-logo premium-logo"
               alt="AutoParts"
             />
@@ -196,7 +196,7 @@
             autocomplete="off"
           >
             <img
-              src="../assets/logopart.png"
+              src="../../assets/logopart.png"
               class="login-logo premium-logo"
               alt="AutoParts"
             />

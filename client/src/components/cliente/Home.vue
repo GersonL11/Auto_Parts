@@ -60,7 +60,7 @@ export default {
   min-height: 100vh;
   width: 100%; /* cambia de 100vw a 100% */
   /* Fondo original restaurado */
-  background: linear-gradient(135deg, var(--main-blue) 0%, var(--main-blue2) 100%), url('../assets/01.jpg') center center/cover no-repeat;
+  background: linear-gradient(135deg, var(--main-blue) 0%, var(--main-blue2) 100%), url('../../assets/01.jpg') center center/cover no-repeat;
   display: flex;
   flex-direction: column;
   font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;

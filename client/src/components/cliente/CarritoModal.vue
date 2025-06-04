@@ -15,7 +15,7 @@
             <li v-for="item in carrito" :key="item._id" class="cart-item">
               <div class="cart-img-wrap">
                 <img
-                  :src="item.img || require('../assets/Piezas/alternador.jpg')"
+                  :src="item.img || require('../../assets/Piezas/alternador.jpg')"
                   :alt="item.nombre"
                   class="cart-img"
                 />
