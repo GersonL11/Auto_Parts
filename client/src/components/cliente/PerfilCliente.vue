@@ -38,7 +38,12 @@
             <label>Usuario</label>
           </div>
           <div class="perfil-cliente-form-group" v-if="nuevaPassword">
-            <input v-model="passwordActual" type="password" placeholder=" " required />
+            <div style="position: relative; width: 100%;">
+              <input v-model="passwordActual" :type="showPasswordActual ? 'text' : 'password'" placeholder=" " required />
+              <button type="button" @click="showPasswordActual = !showPasswordActual" class="perfil-password-eye-btn" tabindex="-1" :aria-label="showPasswordActual ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <i :class="showPasswordActual ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
             <label>Confirma tu contraseña actual</label>
           </div>
           <button class="perfil-cliente-btn" type="submit" :disabled="guardando || subiendoFoto">Guardar cambios</button>
@@ -59,8 +64,14 @@
               <label>Código recibido</label>
             </div>
             <div class="perfil-cliente-form-group">
-              <input v-model="nuevaPasswordReset" type="password" required placeholder=" " />
-              <label>Nueva contraseña</label>
+              <div style="position: relative; width: 100%;">
+                <input v-model="nuevaPasswordReset" :type="showPasswordReset ? 'text' : 'password'" required placeholder=" "
+                  @focus="focusNuevaPasswordReset = true" @blur="focusNuevaPasswordReset = false" />
+                <button type="button" @click="showPasswordReset = !showPasswordReset" class="perfil-password-eye-btn" tabindex="-1" :aria-label="showPasswordReset ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                  <i :class="showPasswordReset ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                </button>
+              </div>
+              <label :class="{ 'label-float': focusNuevaPasswordReset || nuevaPasswordReset }">Nueva contraseña</label>
             </div>
             <button class="perfil-cliente-btn" type="submit">Restablecer contraseña</button>
           </form>
@@ -107,6 +118,9 @@ export default {
       subiendoFoto: false,
       errorFoto: '',
       ampliarFoto: false,
+      showPasswordActual: false,
+      showPasswordReset: false,
+      focusNuevaPasswordReset: false,
     }
   },
   mounted() {
@@ -794,5 +808,35 @@ export default {
     top: 0.5rem;
     right: 0.7rem;
   }
+}
+.perfil-password-eye-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.7em;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #7a8ca3;
+  font-size: 1.18em;
+  cursor: pointer;
+  z-index: 5;
+  padding: 0 0.4em;
+  outline: none;
+  transition: color 0.18s;
+}
+.perfil-password-eye-btn:hover {
+  color: #1e3c72;
+}
+.label-float {
+  top: -0.95rem !important;
+  left: 0.9rem !important;
+  font-size: 0.82rem !important;
+  color: #fff !important;
+  background: linear-gradient(90deg, #42b983 60%, #1e3c72 100%) !important;
+  box-shadow: 0 2px 8px #42b98333 !important;
+  padding: 0.13em 0.7em !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  z-index: 3;
 }
 </style>
