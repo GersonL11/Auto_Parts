@@ -180,7 +180,7 @@ export default {
       search: '',
       categoria: '',
       pagina: 1,
-      piezasPorPagina: 12, // 3 filas x 4 columnas (desktop)
+      piezasPorPagina: 12,
       piezaSeleccionada: null,
       loading: true,
       cantidadAgregar: 1,
