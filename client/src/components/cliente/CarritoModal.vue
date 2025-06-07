@@ -18,36 +18,29 @@
             <li v-for="item in carrito" :key="item._id" class="cart-item">
               <div class="cart-img-wrap">
                 <img
-                  :src="item.img || require('../../assets/Piezas/alternador.jpg')"
+                  v-if="item.img"
+                  :src="item.img"
                   :alt="item.nombre"
+                  class="cart-img"
+                />
+                <img
+                  v-else
+                  src="/images/placeholder.png"
+                  alt="Sin imagen"
                   class="cart-img"
                 />
               </div>
               <div class="cart-info">
                 <div class="cart-name">{{ item.nombre }}</div>
                 <div class="cart-price-row">
-                  <span class="cart-price">L{{ item.precio ? Number(item.precio).toLocaleString() : '0.00' }}</span>
-                  <span class="cart-stock" v-if="item.maxCantidad">| {{ item.maxCantidad }} disp.</span>
+                  <span class="cart-price">L {{ item.precio ? item.precio.toLocaleString() : '0' }}</span>
+                  <span class="cart-stock">x{{ item.cantidad }}</span>
                 </div>
                 <div class="cart-qty-row">
-                  <button
-                    class="cart-qty-btn"
-                    @click="cambiarCantidad(item, -1)"
-                    :disabled="item.cantidad <= 1"
-                  >-</button>
-                  <input
-                    type="number"
-                    min="1"
-                    :max="item.maxCantidad"
-                    v-model.number="item.cantidad"
-                    @change="actualizarCantidad(item)"
-                    class="cart-qty-input"
-                  />
-                  <button
-                    class="cart-qty-btn"
-                    @click="cambiarCantidad(item, 1)"
-                    :disabled="item.cantidad >= item.maxCantidad"
-                  >+</button>
+                  <button class="cart-qty-btn" @click="cambiarCantidad(item, -1)" :disabled="item.cantidad <= 1">-</button>
+                  <input class="cart-qty-input" type="number" v-model.number="item.cantidad" min="1" :max="item.maxCantidad || 99" @change="actualizarCantidad(item)" />
+                  <button class="cart-qty-btn" @click="cambiarCantidad(item, 1)" :disabled="item.maxCantidad && item.cantidad >= item.maxCantidad">+</button>
+                  <span style="font-size:0.93em;color:#888;margin-left:0.5em;">/ {{ item.maxCantidad || '∞' }} disp.</span>
                 </div>
               </div>
               <div class="cart-subtotal">
@@ -269,14 +262,14 @@ export default {
 }
 .cart-empty {
   text-align: center;
-  color: #888;
+  color: #00302cfd;
   font-size: 1.18em;
   padding: 2.2em 0;
   letter-spacing: 0.2px;
 }
 .cart-empty i {
   font-size: 2.5em;
-  color: #e0e0e0;
+  color: #ffffff;
   margin-bottom: 0.5em;
   display: block;
 }
@@ -592,6 +585,97 @@ export default {
   .cart-pay-btn {
     font-size: 1em;
     padding: 0.7em 1.2em;
+  }
+}
+@media (max-width: 500px) {
+  .cart-modal {
+    max-width: 99vw;
+    width: 99vw;
+    padding: 0.7rem 0.2rem 0.7rem 0.2rem;
+    border-radius: 10px;
+  }
+  .cart-header-row {
+    gap: 0.4rem;
+    margin-bottom: 0.7rem;
+  }
+  .cart-header-icon {
+    padding: 0.2em 0.3em;
+    margin-right: 0.2rem;
+  }
+  .cart-header-icon i {
+    font-size: 1.2rem;
+  }
+  .cart-title {
+    font-size: 1rem;
+  }
+  .cart-close-btn {
+    font-size: 1.1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    top: -0.5rem;
+    right: -0.5rem;
+  }
+  .cart-body {
+    max-height: 180px;
+    font-size: 0.95em;
+  }
+  .cart-item {
+    padding: 0.5em 0.5em;
+    border-radius: 10px;
+    gap: 0.4em;
+  }
+  .cart-img-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 7px;
+  }
+  .cart-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 5px;
+  }
+  .cart-name {
+    font-size: 0.98em;
+    max-width: 80px;
+  }
+  .cart-price-row, .cart-stock, .cart-qty-row, .cart-subtotal, .cart-summary, .cart-summary-row, .cart-summary-total {
+    font-size: 0.95em;
+  }
+  .cart-qty-btn, .cart-qty-input {
+    width: 18px;
+    height: 18px;
+    font-size: 0.9em;
+    padding: 0;
+  }
+  .cart-subtotal {
+    min-width: 50px;
+    padding-top: 0.1em;
+    margin-left: 0.2em;
+  }
+  .cart-remove-btn {
+    font-size: 1em;
+    margin-left: 0.2em;
+  }
+  .cart-clear-btn {
+    font-size: 0.95em;
+    padding: 0.1em 0.3em;
+    border-radius: 8px;
+    margin: 0.2em 0 0 0;
+  }
+  .cart-footer {
+    margin-top: 0.5rem;
+    gap: 0.3em;
+  }
+  .cart-summary {
+    border-radius: 8px;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    margin-bottom: 0.1em;
+  }
+  .cart-pay-btn {
+    font-size: 0.98em;
+    padding: 0.4em 1em;
+    border-radius: 10px;
+    gap: 0.3em;
   }
 }
 </style>

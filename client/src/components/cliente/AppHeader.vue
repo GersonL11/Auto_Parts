@@ -1,7 +1,7 @@
 <template>
   <header class="app-header">
     <div class="header-left">
-      <img :src="require('../../assets/logopart.png')" alt="AutoParts Logo" class="header-logo" />
+      <img src="@/assets/logopart.png" alt="AutoParts Logo" class="header-logo" />
       <span class="header-title">
         <i class="fas fa-cogs header-icon"></i>
         AutoParts
@@ -55,8 +55,9 @@
     </button>
     <div v-else class="header-user-menu">
       <button class="header-user-btn" @click="$emit('abrir-menu-cliente')">
-        <i class="fas fa-user-circle"></i>
-        {{ usuario.nombre }}
+        <img v-if="usuario.fotoPerfil" :src="usuario.fotoPerfil" alt="Foto de perfil" class="header-user-avatar" />
+        <i v-else class="fas fa-user-circle"></i>
+        <span>{{ usuario.nombre }}</span>
       </button>
     </div>
   </header>
@@ -250,6 +251,17 @@ export default {
   transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
   font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
 }
+.header-user-avatar {
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.7rem;
+  vertical-align: middle;
+  background: #fff;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px #42b98333;
+}
 .header-user-btn i {
   font-size: 1.3rem;
   color: #232b36;
@@ -298,6 +310,63 @@ export default {
     margin-top: 0.7rem;
     width: 100%;
     justify-content: center;
+  }
+}
+@media (max-width: 500px) {
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.3rem;
+    padding: 0.4rem 0.1rem 0.4rem 0.1rem;
+    min-width: 0;
+  }
+  .header-left {
+    gap: 0.4rem;
+    margin-bottom: 0.2rem;
+  }
+  .header-logo {
+    width: 28px;
+    height: 28px;
+    padding: 0.1rem;
+  }
+  .header-title {
+    font-size: 0.95rem;
+    gap: 0.2rem;
+  }
+  .header-icon {
+    font-size: 0.8rem;
+    margin-right: 0.1rem;
+  }
+  .header-nav {
+    flex-direction: column;
+    gap: 0.1rem;
+    align-items: stretch;
+    width: 100%;
+    padding: 0;
+  }
+  .header-link {
+    font-size: 0.98rem;
+    padding: 0.15rem 0.3rem;
+    border-radius: 6px;
+    gap: 0.2rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .header-link i {
+    font-size: 0.9rem;
+  }
+  .header-login-btn, .header-user-btn {
+    font-size: 0.98rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 10px;
+    margin-left: 0;
+    margin-top: 0.2rem;
+    width: 100%;
+    justify-content: center;
+    gap: 0.3rem;
+  }
+  .header-login-btn i, .header-user-btn i {
+    font-size: 1rem;
   }
 }
 </style>

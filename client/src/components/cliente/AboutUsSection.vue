@@ -221,4 +221,70 @@ export default {
   }
   .about-us-gallery { margin-bottom: 2.5rem; }
 }
+@media (max-width: 700px) {
+  .about-us-section {
+    padding: 1.2rem 0 1rem 0;
+  }
+  .about-us-grid {
+    flex-direction: column;
+    gap: 1.2rem;
+    width: 100%;
+    max-width: 100vw;
+    align-items: stretch;
+  }
+  .about-us-gallery {
+    width: 98vw;
+    min-width: 0;
+    height: 220px;
+    margin-bottom: 1.2rem;
+  }
+  .about-img {
+    border-radius: 6px;
+  }
+  .img1, .img2, .img3, .img4, .img5 {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  .about-us-years {
+    width: 140px;
+    height: 110px;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+  .years-number {
+    font-size: 2rem;
+  }
+  .about-us-info {
+    min-width: 0;
+    max-width: 100vw;
+    padding: 0 0.5rem;
+    gap: 0.7rem;
+  }
+  .about-us-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+  .about-us-info h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+  }
+  .about-us-desc, .about-us-desc1 {
+    font-size: 0.98rem;
+    margin-bottom: 0.3rem;
+  }
+  .about-us-contact {
+    font-size: 0.98rem;
+    gap: 0.5rem;
+    padding-top: 0.7rem;
+    margin-top: 0.7rem;
+  }
+  .phone-icon {
+    font-size: 1.3rem;
+    padding: 0.2rem 0.3rem;
+  }
+  .phone-number {
+    font-size: 1.1rem;
+    margin-top: 0.2rem;
+  }
+}
 </style>

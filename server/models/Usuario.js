@@ -6,7 +6,8 @@ const usuarioSchema = new mongoose.Schema({
   usuario: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   codigoRecuperacion: { type: String }, // <-- nuevo campo opcional
-  rol: { type: String, enum: ['admin', 'cliente'], default: 'cliente' } // <-- nuevo campo
+  rol: { type: String, enum: ['admin', 'cliente'], default: 'cliente' }, // <-- nuevo campo
+  fotoPerfil: { type: String } // URL de la foto de perfil
 });
 
 module.exports = mongoose.model('Usuario', usuarioSchema);

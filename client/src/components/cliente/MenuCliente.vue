@@ -1,9 +1,10 @@
 <template>
   <div>
-    <transition name="slide-menu">
+    <transition name="slide-menu-soft">
       <aside v-if="show" class="menu-cliente-sidebar">
         <div class="menu-cliente-header">
-          <i class="fas fa-user-circle"></i>
+          <img v-if="usuario?.fotoPerfil" :src="usuario.fotoPerfil" alt="Foto de perfil" class="menu-cliente-avatar" />
+          <i v-else class="fas fa-user-circle"></i>
           <span class="menu-cliente-nombre">{{ usuario?.nombre }}</span>
           <button class="menu-cliente-close" @click="$emit('close')">&times;</button>
         </div>
@@ -24,7 +25,9 @@
         </div>
       </aside>
     </transition>
-    <div v-if="show" class="menu-cliente-backdrop" @click="$emit('close')"></div>
+    <transition name="menu-backdrop-fade">
+      <div v-if="show" class="menu-cliente-backdrop" @click="$emit('close')"></div>
+    </transition>
   </div>
 </template>
 
@@ -80,6 +83,19 @@ export default {
   transform: translateX(100%);
   opacity: 0;
 }
+.slide-menu-soft-enter-active, .slide-menu-soft-leave-active {
+  transition: opacity 0.5s cubic-bezier(.4,0,.2,1), transform 0.5s cubic-bezier(.4,0,.2,1);
+}
+.slide-menu-soft-enter-from, .slide-menu-soft-leave-to {
+  opacity: 0;
+  transform: translateX(64px) scale(0.98);
+}
+.menu-backdrop-fade-enter-active, .menu-backdrop-fade-leave-active {
+  transition: opacity 0.5s cubic-bezier(.4,0,.2,1);
+}
+.menu-backdrop-fade-enter-from, .menu-backdrop-fade-leave-to {
+  opacity: 0;
+}
 .menu-cliente-header {
   display: flex;
   flex-direction: column;
@@ -94,6 +110,16 @@ export default {
   border-bottom: none;
   padding-bottom: 0;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+.menu-cliente-avatar {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+  border: 3.5px solid #fff;
+  box-shadow: 0 4px 24px #42b98355, 0 1.5px 0 #fff4 inset;
+  margin-bottom: 0.5rem;
 }
 .menu-cliente-header i {
   font-size: 3.2rem;
@@ -215,9 +241,10 @@ export default {
 .menu-cliente-backdrop {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(30, 60, 114, 0.10);
+  background: rgba(20, 40, 80, 0.32);
+  backdrop-filter: blur(24px) saturate(1.7);
+  -webkit-backdrop-filter: blur(24px) saturate(1.7);
   z-index: 30000;
-  backdrop-filter: blur(2.5px) saturate(1.05);
 }
 
 /* --- MODAL PERFIL PREMIUM, GLASS, MODERNO Y CREATIVO --- */
@@ -423,6 +450,55 @@ export default {
   .perfil-cliente-btn {
     font-size: 1.01rem;
     padding: 0.9rem 0;
+  }
+}
+@media (max-width: 500px) {
+  .menu-cliente-sidebar {
+    width: 100vw;
+    max-width: 100vw;
+    min-width: 0;
+    padding: 0.7rem 0.2rem 0.7rem 0.2rem;
+    border-radius: 0;
+    border-width: 0 0 0 2px;
+    font-size: 0.98rem;
+    overflow-y: auto;
+  }
+  .menu-cliente-header {
+    font-size: 1rem;
+    gap: 0.3em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.2rem;
+  }
+  .menu-cliente-header i {
+    font-size: 1.5rem;
+    padding: 0.2em 0.3em;
+    margin-bottom: 0.2rem;
+  }
+  .menu-cliente-nombre {
+    font-size: 0.98rem;
+  }
+  .menu-cliente-close {
+    font-size: 1.3rem;
+    top: 0.5rem;
+    right: 0.7rem;
+    padding: 0.1em 0.3em;
+  }
+  .menu-cliente-body {
+    gap: 0.7rem;
+    margin-top: 0.1rem;
+  }
+  .menu-cliente-btn {
+    font-size: 0.98rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+    gap: 0.4rem;
+  }
+  .menu-cliente-btn i {
+    font-size: 0.98rem;
+    padding: 0.08em 0.15em;
+  }
+  .menu-cliente-divider {
+    margin: 0.7rem 0 0.5rem 0;
   }
 }
 </style>

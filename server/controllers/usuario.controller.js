@@ -43,7 +43,11 @@ exports.actualizarUsuario = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       data.password = await bcrypt.hash(data.password, salt);
     }
-    const usuario = await Usuario.findByIdAndUpdate(req.params.id, data, { new: true });
+    const updateFields = { ...data };
+    if (typeof data.fotoPerfil === 'undefined') {
+      delete updateFields.fotoPerfil;
+    }
+    const usuario = await Usuario.findByIdAndUpdate(req.params.id, updateFields, { new: true });
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
     res.json(usuario);
   } catch (err) {

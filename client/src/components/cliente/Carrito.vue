@@ -105,4 +105,26 @@ export default {
 .carrito-float-btn:active .carrito-badge {
   background: #d32f2f;
 }
+@media (max-width: 500px) {
+  .carrito-float-btn {
+    width: 40px;
+    height: 40px;
+    right: 10px;
+    bottom: 80px;
+    box-shadow: 0 2px 8px #1e3c7220;
+  }
+  .carrito-svg {
+    width: 22px;
+    height: 22px;
+  }
+  .carrito-badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.8em;
+    top: 2px;
+    right: 2px;
+    padding: 0 3px;
+    border-width: 1px;
+  }
+}
 </style>

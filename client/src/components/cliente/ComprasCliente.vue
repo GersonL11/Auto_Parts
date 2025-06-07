@@ -43,17 +43,26 @@
               <span class="compra-fecha"><i class="fas fa-calendar-alt"></i> {{ formatFecha(compra.fecha) }}</span>
               <span class="compra-total"><i class="fas fa-money-bill-wave"></i> <span class="compra-total-label">Total:</span> <span class="compra-total-valor">L {{ compra.total?.toLocaleString() }}</span></span>
             </div>
+            <div class="compra-extra-info">
+              <span v-if="compra.metodoPago"><i class="fas fa-credit-card"></i> <b>Método de pago:</b> {{ compra.metodoPago }}</span>
+              <span v-if="compra.direccion"><i class="fas fa-map-marker-alt"></i> <b>Dirección:</b> {{ compra.direccion }}</span>
+              <span v-if="compra.telefono"><i class="fas fa-phone"></i> <b>Teléfono:</b> {{ compra.telefono }}</span>
+            </div>
             <ul class="compra-detalle">
-              <li v-for="item in compra.carrito" :key="item._id" class="compra-producto">
-                <img
-                  class="compra-producto-img"
-                  :src="item.img || require('../../assets/Piezas/alternador.jpg')"
-                  :alt="item.nombre"
-                />
+              <li v-for="item in compra.carrito" :key="item._id" class="compra-producto compra-producto-detallado mejor-card-compra">
                 <div class="compra-producto-info">
                   <span class="compra-producto-nombre">{{ item.nombre }}</span>
-                  <span class="compra-producto-cantidad">x{{ item.cantidad }}</span>
-                  <span class="compra-producto-precio">L {{ (item.precio * item.cantidad).toLocaleString() }}</span>
+                  <div class="compra-producto-det-row">
+                    <span v-if="item.marca" class="compra-producto-det"><i class="fas fa-industry"></i> Marca: <b>{{ item.marca }}</b></span>
+                    <span v-if="item.modelo" class="compra-producto-det"><i class="fas fa-car"></i> Modelo: <b>{{ item.modelo }}</b></span>
+                    <span v-if="item.año" class="compra-producto-det"><i class="fas fa-calendar"></i> Año: <b>{{ item.año }}</b></span>
+                    <span v-if="item.ubicacion" class="compra-producto-det"><i class="fas fa-map-marker-alt"></i> Ubicación: <b>{{ item.ubicacion }}</b></span>
+                  </div>
+                  <div class="compra-producto-det-row compra-producto-det-row-sec">
+                    <span class="compra-producto-cantidad"><i class="fas fa-sort-numeric-up"></i> Cantidad: <b>{{ item.cantidad }}</b></span>
+                    <span class="compra-producto-precio"><i class="fas fa-tag"></i> Precio unitario: <b>L {{ item.precio?.toLocaleString() }}</b></span>
+                    <span class="compra-producto-subtotal"><i class="fas fa-calculator"></i> Subtotal: <b>L {{ (item.precio * item.cantidad).toLocaleString() }}</b></span>
+                  </div>
                 </div>
               </li>
             </ul>
@@ -140,7 +149,6 @@ export default {
       return new Date(fecha).toLocaleDateString('es-HN', { year: 'numeric', month: 'short', day: 'numeric' });
     },
     aplicarFiltro() {
-      // No hace falta nada, el filtro es reactivo
     },
     limpiarFiltro() {
       this.filtros = { fechaInicio: '', fechaFin: '', mes: '', anio: '' };
@@ -161,10 +169,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.7);
 }
 .compras-cliente-modal {
-  background: rgba(255,255,255,0.18);
+  background: rgba(255, 255, 255, 0.18);
   border-radius: 2.5rem;
   box-shadow: 0 16px 64px 0 #1e3c7260, 0 2px 12px #42b98333;
   border: 1.5px solid rgba(66,185,131,0.18);
@@ -335,10 +343,19 @@ export default {
 }
 .compras-cliente-loading,
 .compras-cliente-empty {
-  color: #888;
+  color: #062838;
   text-align: center;
-  font-size: 1.1rem;
-  margin: 2rem 0;
+  font-size: 1.08rem;
+  margin: 2rem 0 1.5rem 0;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  text-shadow: none;
+  background: none;
+  border-radius: 0.3em;
+  padding: 0.3em 0.2em;
+  box-shadow: none;
+  display: block;
+  opacity: 0.85;
 }
 .compras-cliente-list {
   list-style: none;
@@ -408,6 +425,22 @@ export default {
   margin-left: 0.2em;
   letter-spacing: 0.5px;
 }
+.compra-extra-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5em;
+  margin: 0.2em 0 0.7em 0;
+  font-size: 1em;
+  color: #1e3c72;
+  background: #fafdffcc;
+  border-radius: 10px;
+  padding: 0.5em 1em;
+  box-shadow: 0 1px 4px #42b98311;
+}
+.compra-extra-info i {
+  color: #42b983;
+  margin-right: 0.3em;
+}
 .compra-detalle {
   list-style: none;
   color: #232b36;
@@ -430,38 +463,104 @@ export default {
   border: 1.5px solid #e0e0e0;
   transition: box-shadow 0.15s, border 0.15s;
 }
-.compra-producto:not(:last-child) {
-  margin-bottom: 0.5em;
-}
-.compra-producto-img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  border-radius: 8px;
-  background: #f5f5f5;
-  box-shadow: 0 1px 4px #00eaff11;
-  border: 1px solid #e0e0e0;
+.compra-producto-detallado {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2em;
+  padding: 0.7em 1em 0.7em 1em;
 }
 .compra-producto-info {
   display: flex;
   flex-direction: column;
-  gap: 0.1em;
+  gap: 0.13em;
 }
-.compra-producto-nombre {
-  font-weight: 800;
+.compra-producto-det {
   color: #1e3c72;
-  font-size: 1.08em;
+  font-size: 0.98em;
   margin-bottom: 0.1em;
 }
 .compra-producto-cantidad {
   color: #42b983;
   font-weight: 700;
-  font-size: 0.98em;
+  font-size: 1em;
 }
 .compra-producto-precio {
+  color: #269999;
+  font-weight: 700;
+  font-size: 1em;
+}
+.compra-producto-subtotal {
   color: #30c16c;
   font-weight: 900;
-  font-size: 1.01em;
+  font-size: 1.08em;
+  margin-top: 0.1em;
+}
+.mejor-card-compra {
+  background: linear-gradient(120deg, #fafdff 80%, #e6f9f3 100%);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #42b98322, 0 1px 4px #1e3c7211;
+  border: 2px solid #42b98322;
+  margin-bottom: 0.7em;
+  padding: 1.1em 1.2em 1em 1.2em;
+  transition: box-shadow 0.18s, border 0.18s, transform 0.13s;
+}
+.mejor-card-compra:hover {
+  box-shadow: 0 8px 32px #42b98333, 0 0 0 2px #42b98355;
+  border: 2px solid #42b983;
+  transform: scale(1.01);
+}
+.compra-producto-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18em;
+}
+.compra-producto-nombre {
+  font-weight: 900;
+  color: #1e3c72;
+  font-size: 1.18em;
+  margin-bottom: 0.2em;
+  letter-spacing: 0.5px;
+}
+.compra-producto-det-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2em;
+  margin-bottom: 0.1em;
+}
+.compra-producto-det-row-sec {
+  gap: 2em;
+  margin-top: 0.2em;
+}
+.compra-producto-det {
+  color: #1e3c72;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+}
+.compra-producto-cantidad {
+  color: #42b983;
+  font-weight: 700;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+}
+.compra-producto-precio {
+  color: #269999;
+  font-weight: 700;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+}
+.compra-producto-subtotal {
+  color: #30c16c;
+  font-weight: 900;
+  font-size: 1.08em;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
 }
 @media (max-width: 900px) {
   .compras-cliente-modal {

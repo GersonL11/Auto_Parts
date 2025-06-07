@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{ 'modal-open': showLogin || mostrarCarrito || mostrarPerfilCliente || mostrarComprasCliente }">
+  <div id="app" class="app-layout" :class="{ 'modal-open': showLogin || mostrarCarrito || mostrarPerfilCliente || mostrarComprasCliente }">
     <HomePage
       v-if="currentPage === 'home' && !showLogin"
       :usuario="usuario"
@@ -40,9 +40,7 @@
       @show-parts="goTo('parts')"
       :categoria-inicial="categoriaInicialPiezas"
     />
-    <!-- Menú lateral solo si el usuario es admin y currentPage es 'admin' -->
     <AdminLayout v-if="usuario && usuario.rol === 'admin' && currentPage === 'admin'" @navigate="handleSidebarNav" />
-    <!-- Header solo si no está el login -->
     <AppHeader
       v-if="!showLogin"
       :current="currentPage"
@@ -321,12 +319,20 @@ body {
   max-width: 100vw;
   box-sizing: border-box;
 }
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 #app {
   width: 100vw;
   max-width: 100vw;
   min-height: 100vh;
   overflow-x: hidden !important;
   box-sizing: border-box;
+}
+.router-view, .home-hero {
+  flex: 1 0 auto;
 }
 *,
 *::before,
@@ -383,7 +389,6 @@ html {
   from { opacity: 0; transform: translateY(-30px);}
   to { opacity: 1; transform: translateY(0);}
 }
-/* Elimina margen derecho global en botones para evitar overflow */
 button, .btn-login, .btn-iniciar-sesion {
   margin-right: 0 !important;
 }

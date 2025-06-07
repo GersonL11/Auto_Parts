@@ -8,17 +8,24 @@
           <h3>Resumen de tu compra</h3>
           <ul class="pagar-lista">
             <li v-for="item in carrito" :key="item._id" class="pagar-item">
-              <img :src="item.img || require('../../assets/Piezas/alternador.jpg')" :alt="item.nombre" class="pagar-img" />
+              <img
+                v-if="item.img"
+                :src="item.img"
+                :alt="item.nombre"
+                class="pagar-img"
+              />
+              <img
+                v-else
+                src="/images/placeholder.png"
+                alt="Sin imagen"
+                class="pagar-img"
+              />
               <div class="pagar-item-info">
                 <div class="pagar-item-nombre">{{ item.nombre }}</div>
-                <div class="pagar-item-detalle">
-                  <span v-if="item.marca">{{ item.marca }}</span>
-                  <span v-if="item.modelo">/ {{ item.modelo }}</span>
-                  <span v-if="item.año">/ {{ item.año }}</span>
-                </div>
-                <div class="pagar-item-cantidad">Cantidad: <b>{{ item.cantidad }}</b></div>
+                <div class="pagar-item-detalle">{{ item.marca }} <span v-if="item.modelo">/ {{ item.modelo }}</span></div>
+                <div class="pagar-item-cantidad">Cantidad: {{ item.cantidad }}</div>
               </div>
-              <div class="pagar-item-precio">L {{ (item.precio * item.cantidad).toLocaleString() }}</div>
+              <div class="pagar-item-precio">L {{ (item.precio || 0).toLocaleString() }}</div>
             </li>
           </ul>
           <div class="pagar-total-row">
@@ -84,8 +91,10 @@
       </div>
     </div>
     <transition name="fade">
-      <div v-if="exito" class="pagar-exito">
-        <i class="fas fa-check-circle"></i> ¡Pago realizado con éxito!
+      <div v-if="toastMsg" :class="['cart-toast', 'toast-bottom-right', toastType === 'error' ? 'toast-error' : '']">
+        <i v-if="toastType==='success'" class="fas fa-check-circle toast-check"></i>
+        <i v-else-if="toastType==='error'" class="fas fa-times-circle toast-error-icon"></i>
+        {{ toastMsg }}
       </div>
     </transition>
   </div>
@@ -112,7 +121,9 @@ export default {
       },
       pagando: false,
       error: '',
-      exito: false
+      exito: false,
+      toastMsg: '',
+      toastType: 'success',
     }
   },
   computed: {
@@ -124,26 +135,33 @@ export default {
     async confirmarPago() {
       this.error = '';
       if (!this.form.nombre || !this.form.email || !this.form.telefono || !this.form.direccion || !this.form.metodoPago) {
-        this.error = 'Por favor, completa todos los campos obligatorios.';
+        this.toastType = 'error';
+        this.toastMsg = 'Por favor, completa todos los campos obligatorios.';
+        setTimeout(() => { this.toastMsg = '' }, 5000);
         return;
       }
       if (this.form.metodoPago === 'tarjeta') {
         if (!/^[0-9]{4} ?[0-9]{4} ?[0-9]{4} ?[0-9]{4}$/.test(this.form.tarjeta)) {
-          this.error = 'Número de tarjeta inválido.';
+          this.toastType = 'error';
+          this.toastMsg = 'Número de tarjeta inválido.';
+          setTimeout(() => { this.toastMsg = '' }, 5000);
           return;
         }
         if (!/^\d{2}\/\d{2}$/.test(this.form.expira)) {
-          this.error = 'Fecha de expiración inválida.';
+          this.toastType = 'error';
+          this.toastMsg = 'Fecha de expiración inválida.';
+          setTimeout(() => { this.toastMsg = '' }, 5000);
           return;
         }
         if (!/^\d{3,4}$/.test(this.form.cvv)) {
-          this.error = 'CVV inválido.';
+          this.toastType = 'error';
+          this.toastMsg = 'CVV inválido.';
+          setTimeout(() => { this.toastMsg = '' }, 5000);
           return;
         }
       }
       this.pagando = true;
       try {
-        // 1. Enviar correo de confirmación al cliente y admin
         await fetch('http://localhost:3000/api/pago', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -157,7 +175,6 @@ export default {
             total: this.total
           })
         });
-        // 2. Registrar la venta y descontar stock
         await fetch('http://localhost:3000/api/ventas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -171,12 +188,16 @@ export default {
             total: this.total
           })
         });
-        this.exito = true;
+        this.toastType = 'success';
+        this.toastMsg = '¡Pago realizado con éxito!';
         setTimeout(() => {
+          this.toastMsg = '';
           this.$emit('pago-completado');
-        }, 1200);
+        }, 5000);
       } catch (e) {
-        this.error = 'Ocurrió un error al procesar el pago.';
+        this.toastType = 'error';
+        this.toastMsg = 'Ocurrió un error al procesar el pago.';
+        setTimeout(() => { this.toastMsg = '' }, 5000);
       } finally {
         this.pagando = false;
       }
@@ -476,33 +497,37 @@ export default {
   text-align: center;
   text-shadow: 0 2px 8px #fff;
 }
-.pagar-exito {
+.cart-toast {
   position: fixed;
-  top: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #42b983;
-  color: #fff;
-  padding: 1.1rem 2.5rem;
-  border-radius: 18px;
-  font-size: 1.18rem;
-  font-weight: 800;
-  box-shadow: 0 4px 24px #1e3c7240;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 9999;
-  text-align: center;
-  opacity: 0.97;
-  letter-spacing: 0.5px;
-  animation: fadeInToast 0.2s;
-}
-@keyframes fadeInToast {
-  from { opacity: 0; transform: translateX(-50%) translateY(-20px);}
-  to { opacity: 0.97; transform: translateX(-50%) translateY(0);}
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1);
+  opacity: 0.95;
+  backdrop-filter: blur(18px) saturate(1.7);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7);
+  animation: toast-fade-in 0.5s cubic-bezier(.4,0,.2,1);
 }
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.4s;
+  transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1);
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+  transform: translateY(32px) scale(0.98);
+}
+@keyframes toast-fade-in {
+  from { opacity: 0; transform: translateY(32px) scale(0.98); }
+  to { opacity: 0.95; transform: translateY(0) scale(1); }
 }
 @media (max-width: 900px) {
   .pagar-container {
@@ -521,6 +546,45 @@ export default {
     max-width: 99vw;
     min-width: unset;
     padding: 1rem 0.5rem 1rem 0.5rem;
+  }
+}
+@media (max-width: 500px) {
+  .pagar-modal {
+    max-width: 99vw;
+    width: 99vw;
+    padding: 1.2rem 0.3rem 1.2rem 0.3rem;
+    border-radius: 1.1rem;
+  }
+  .pagar-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .pagar-form {
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+    padding: 0.2rem 0.1rem;
+  }
+  .pagar-form-group {
+    width: 99%;
+    margin-bottom: 0.2rem;
+  }
+  .pagar-form input,
+  .pagar-form select {
+    font-size: 0.95rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 7px;
+  }
+  .pagar-btn {
+    font-size: 0.95rem;
+    padding: 0.3rem 0;
+    border-radius: 7px;
+    margin: 0.3rem auto 0.2rem auto;
+    width: 99%;
+  }
+  .pagar-resumen {
+    font-size: 0.95rem;
+    padding: 0.5rem 0.2rem;
+    border-radius: 8px;
   }
 }
 </style>

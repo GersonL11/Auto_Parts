@@ -584,8 +584,128 @@ export default {
   }
 }
 @media (max-width: 700px) {
+  .aboutus-main-container {
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+    max-width: 100vw;
+  }
+  .aboutus-hero {
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
+    align-items: stretch;
+  }
+  .aboutus-hero-img-col, .aboutus-hero-text-col {
+    min-width: 0;
+    width: 100%;
+    flex: 1 1 100%;
+    padding: 0;
+  }
+  .aboutus-img-main-wrap {
+    width: 180px;
+    height: 180px;
+  }
+  .aboutus-img-overlay {
+    width: 80px;
+    height: 60px;
+    right: 6px;
+    bottom: 6px;
+    padding: 0.2rem;
+  }
+  .aboutus-history-title {
+    font-size: 1.1rem;
+    margin: 0.1rem 0 0.5rem 0;
+  }
+  .aboutus-history-desc {
+    font-size: 0.98rem;
+  }
+  .aboutus-how {
+    margin-bottom: 1.2rem;
+  }
+  .aboutus-how-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+  }
+  .aboutus-how-desc {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+  .aboutus-how-steps {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: stretch;
+  }
+  .aboutus-step {
+    min-width: 0;
+    max-width: 100vw;
+    padding: 1.2rem 0.7rem 1rem 0.7rem;
+    border-radius: 12px;
+    margin-bottom: 0.7rem;
+  }
+  .aboutus-step-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .aboutus-step-title {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+  .aboutus-step-desc {
+    font-size: 0.95rem;
+    margin-top: 0.1rem;
+  }
+  .aboutus-contact {
+    margin-top: 1.2rem;
+    margin-bottom: 0.7rem;
+  }
+  .aboutus-contact h3 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+  .aboutus-contact p {
+    font-size: 0.95rem;
+    margin-bottom: 0.7rem;
+  }
+  .aboutus-contact-btn {
+    font-size: 0.98rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 10px;
+    gap: 0.4rem;
+  }
+  .aboutus-features {
+    padding: 1.2rem 0 1.2rem 0;
+    margin-bottom: 1.2rem;
+  }
   .aboutus-features-title {
     font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+  }
+  .aboutus-features-cards {
+    flex-direction: column;
+    gap: 1.2rem;
+    max-width: 100vw;
+  }
+  .aboutus-feature-card {
+    min-width: 0;
+    max-width: 100vw;
+    padding: 1.2rem 0.7rem 1rem 0.7rem;
+    border-radius: 12px;
+    margin-bottom: 0.7rem;
+  }
+  .aboutus-feature-icon {
+    font-size: 1.5rem;
+    padding: 0.5rem 0.7rem;
+    margin-top: -1rem;
+    margin-bottom: 0.7rem;
+    border-radius: 10px;
+  }
+  .aboutus-feature-card h4 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+  .aboutus-feature-card p {
+    font-size: 0.95rem;
   }
 }
 </style>

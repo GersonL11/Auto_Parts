@@ -21,31 +21,26 @@
       <form class="contact-form" @submit.prevent="enviarFormulario">
         <div class="contact-form-row">
           <div class="contact-form-group">
-            <label>Nombre <span>*</span></label>
-            <input v-model="nombre" type="text" placeholder="Tu nombre completo" required />
+            <label for="contact-nombre">Nombre <span>*</span></label>
+            <input v-model="nombre" type="text" placeholder="Tu nombre completo" required id="contact-nombre" name="nombre" />
           </div>
           <div class="contact-form-group">
-            <label>Correo electrónico <span>*</span></label>
-            <input v-model="correo" type="email" placeholder="Tu correo electrónico" required />
+            <label for="contact-correo">Correo electrónico <span>*</span></label>
+            <input v-model="correo" type="email" placeholder="Tu correo electrónico" required id="contact-correo" name="correo" />
           </div>
         </div>
         <div class="contact-form-row">
           <div class="contact-form-group">
-            <label>Teléfono</label>
-            <input v-model="telefono" type="text" placeholder="Tu teléfono o WhatsApp" />
+            <label for="contact-telefono">Teléfono</label>
+            <input v-model="telefono" type="text" placeholder="Tu teléfono o WhatsApp" id="contact-telefono" name="telefono" />
           </div>
           <div class="contact-form-group">
-            <label>Mensaje <span>*</span></label>
-            <textarea v-model="mensaje" rows="4" placeholder="¿En qué podemos ayudarte? Por favor, proporciona detalles para poder asistirte mejor." required></textarea>
+            <label for="contact-mensaje">Mensaje <span>*</span></label>
+            <textarea v-model="mensaje" rows="4" placeholder="¿En qué podemos ayudarte? Por favor, proporciona detalles para poder asistirte mejor." required id="contact-mensaje" name="mensaje"></textarea>
           </div>
         </div>
         <button class="contact-btn" type="submit" :disabled="enviando">{{ enviando ? 'Enviando...' : 'Enviar mensaje' }}</button>
       </form>
-      <transition name="fade">
-        <div v-if="toastMsg" class="toast-notification">
-          {{ toastMsg }}
-        </div>
-      </transition>
       <div class="contact-info-row">
         <div class="contact-info-card">
           <div class="contact-info-icon">
@@ -90,6 +85,12 @@
         ></iframe>
       </div>
     </div>
+    <!-- Toast notification, fixed bottom right -->
+    <transition name="fade">
+      <div v-if="toastMsg" class="cart-toast contact-toast toast-bottom-right">
+        <i class="fas fa-check-circle toast-check"></i> {{ toastMsg }}
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -117,7 +118,8 @@ export default {
       telefono: '',
       mensaje: '',
       enviando: false,
-      toastMsg: ''
+      toastMsg: '',
+      toastCorreoEnviado: false
     };
   },
   methods: {
@@ -140,12 +142,15 @@ export default {
         this.correo = '';
         this.telefono = '';
         this.mensaje = '';
+        setTimeout(() => {
+          this.toastMsg = '';
+        }, 5000);
       } catch (err) {
         this.toastMsg = err.response?.data?.error || 'Error al enviar el mensaje. Intenta de nuevo.';
+        setTimeout(() => {
+          this.toastMsg = '';
+        }, 5000);
       }
-      setTimeout(() => {
-        this.toastMsg = '';
-      }, 4000);
       this.enviando = false;
     }
   }
@@ -429,28 +434,129 @@ export default {
     min-width: 100%;
   }
 }
-
-.toast-notification {
+@media (max-width: 500px) {
+  .contact-main-container {
+    padding: 0.7rem 0.2rem 0.5rem 0.2rem;
+  }
+  .contact-form {
+    padding: 0.7rem 0.2rem 0.7rem 0.2rem;
+    gap: 1rem;
+  }
+  .contact-form-row {
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-bottom: 0.5rem;
+  }
+  .contact-form-group label {
+    font-size: 0.98rem;
+    margin-bottom: 0.3rem;
+  }
+  .contact-form-group input,
+  .contact-form-group textarea {
+    font-size: 0.98rem;
+    padding: 0.7rem 0.7rem;
+  }
+  .contact-btn {
+    font-size: 0.98rem;
+    padding: 0.7rem 0;
+    margin-top: 0.7rem;
+    border-radius: 7px;
+  }
+  .contact-info-row {
+    gap: 0.7rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  .contact-info-card {
+    min-width: 0;
+    max-width: 100vw;
+    padding: 0.7rem 0.2rem 0.7rem 0.2rem;
+    border-radius: 10px;
+  }
+  .contact-info-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .contact-info-title {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+  .contact-info-desc {
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+  .contact-info-link {
+    font-size: 0.98rem;
+  }
+  .contact-map-outer {
+    margin-top: 0.7rem;
+  }
+  .contact-map {
+    height: 100px;
+  }
+}
+.cart-toast.contact-toast.toast-bottom-right {
   position: fixed;
-  top: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #22c1fa;
+  right: 36px;
+  bottom: 36px;
+  min-width: 220px;
+  max-width: 380px;
+  background: rgba(34, 40, 60, 0.38);
   color: #fff;
-  padding: 1.1rem 2.5rem;
-  border-radius: 18px;
-  font-size: 1.18rem;
-  font-weight: 800;
-  box-shadow: 0 4px 24px #1e3c7240;
-  z-index: 9999;
-  text-align: center;
-  opacity: 0.97;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(30,60,114,0.22), 0 2px 12px rgba(66,185,131,0.13);
+  padding: 1.2em 2.1em 1.2em 1.5em;
+  font-size: 1.09rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 1.05em;
+  z-index: 50000;
+  user-select: none;
+  border: none;
+  opacity: 0.98;
+  animation: perfil-snackbar-pop 0.42s cubic-bezier(.4,0,.2,1);
+  transition: background 0.22s, color 0.22s, opacity 0.22s, box-shadow 0.22s;
+  pointer-events: auto;
+  backdrop-filter: blur(18px) saturate(1.7);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  text-align: left;
   letter-spacing: 0.5px;
+}
+.toast-check {
+  color: #42e6a4;
+  font-size: 1.35em;
+  font-weight: bold;
+  margin-right: 0.7em;
+  display: inline-flex;
+  align-items: center;
+  filter: drop-shadow(0 1px 2px #42b98388);
+  min-width: 1.3em;
+  text-align: center;
+}
+@keyframes perfil-snackbar-pop {
+  0% { opacity: 0; transform: translateY(32px) scale(0.98); }
+  100% { opacity: 0.98; transform: translateY(0) scale(1); }
 }
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.4s;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+@media (max-width: 700px) {
+  .cart-toast.contact-toast.toast-bottom-right {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    min-width: 120px;
+    max-width: 90vw;
+    font-size: 0.93rem;
+    border-radius: 10px;
+    padding: 0.5em 1em 0.5em 0.7em;
+    margin: 0 auto;
+  }
 }
 </style>

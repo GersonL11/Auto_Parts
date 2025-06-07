@@ -5,7 +5,6 @@ import AdminRepuestos from '@/components/admin/Repuestos.vue'
 import AdminUsuarios from '@/components/admin/Usuarios.vue'
 import AdminVentas from '@/components/admin/Ventas.vue'
 
-// Puedes agregar aquí rutas públicas si lo necesitas
 
 const routes = [
   {
@@ -17,6 +16,11 @@ const routes = [
       { path: 'usuarios', component: AdminUsuarios },
       { path: 'ventas', component: AdminVentas }
     ]
+  },
+  {
+    path: '/',
+    name: 'Home',
+    component: () => import('@/components/cliente/Home.vue')
   }
 ]
 

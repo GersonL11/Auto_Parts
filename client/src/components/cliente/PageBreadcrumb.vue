@@ -137,4 +137,32 @@ export default {
     margin-top: 0;
   }
 }
+@media (max-width: 500px) {
+  .breadcrumb-hero {
+    min-height: 110px;
+    padding-bottom: 0;
+  }
+  .breadcrumb-bg {
+    height: 100%;
+  }
+  .breadcrumb-video {
+    min-height: 110px;
+    height: 100%;
+  }
+  .breadcrumb-curve {
+    height: 50px;
+    min-height: 0;
+  }
+  .breadcrumb-content {
+    padding: 0.2rem 0.2rem;
+  }
+  .breadcrumb-title {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+  .breadcrumb-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 0.1rem;
+  }
+}
 </style>

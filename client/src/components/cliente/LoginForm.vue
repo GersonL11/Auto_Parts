@@ -11,7 +11,9 @@
     <div class="login-container">
       <!-- Toast notification -->
       <transition name="fade">
-        <div v-if="toastMsg" class="toast-notification toast-bottom-right">
+        <div v-if="toastMsg" :class="['cart-toast', 'toast-bottom-right', toastType]">
+          <i v-if="toastType==='success'" class="fas fa-check-circle toast-check"></i>
+          <i v-else-if="toastType==='error'" class="fas fa-times-circle toast-error-icon"></i>
           {{ toastMsg }}
         </div>
       </transition>
@@ -293,6 +295,7 @@ export default {
       showForgot: false,
       forgotMsg: '',
       toastMsg: '',
+      toastType: 'success', // 'success' | 'error'
       showReset: false,
       codigo: '',
       nuevaPassword: '',
@@ -330,18 +333,22 @@ export default {
           } else {
             localStorage.removeItem('autoparts_user');
           }
-          // Notificación y redirección solo para cliente
           if (res.data.usuario && res.data.usuario.rol === 'cliente') {
+            this.toastType = 'success';
             this.toastMsg = '¡Inicio de sesión exitoso!';
             setTimeout(() => {
               this.toastMsg = '';
               this.$emit('login-success', res.data.usuario);
-            }, 1400);
+            }, 5000);
           } else {
             this.$emit('login-success', res.data.usuario);
           }
         } catch (err) {
-          this.error = 'Credenciales inválidas';
+          this.toastType = 'error';
+          this.toastMsg = 'Credenciales inválidas';
+          setTimeout(() => {
+            this.toastMsg = '';
+          }, 5000);
         }
       } else {
         // Registro
@@ -351,13 +358,21 @@ export default {
             correo: this.correo,
             usuario: this.usuario,
             password: this.password
-            // No enviar rol
           });
           this.isLogin = true;
           this.error = '';
           this.password = '';
+          this.toastType = 'success';
+          this.toastMsg = '¡Cuenta creada correctamente!';
+          setTimeout(() => {
+            this.toastMsg = '';
+          }, 5000);
         } catch (err) {
-          this.error = err.response?.data?.error || 'Error al registrar usuario';
+          this.toastType = 'error';
+          this.toastMsg = err.response?.data?.error || 'Error al registrar usuario';
+          setTimeout(() => {
+            this.toastMsg = '';
+          }, 5000);
         }
       }
     },
@@ -368,13 +383,18 @@ export default {
         await axios.post('http://localhost:3000/api/recuperar-clave', {
           correo: this.correo
         });
-        this.toastMsg = 'Recibirás instrucciones para restablecer tu contraseña.';
+        this.toastType = 'success';
+        this.toastMsg = 'Revisa tu correo para restablecer tu contraseña.';
         setTimeout(() => {
           this.toastMsg = '';
-        }, 4000);
+        }, 5000);
         this.showReset = true;
       } catch (err) {
-        this.error = err.response?.data?.error || 'Error al enviar el correo de recuperación';
+        this.toastType = 'error';
+        this.toastMsg = err.response?.data?.error || 'Error al enviar el correo de recuperación';
+        setTimeout(() => {
+          this.toastMsg = '';
+        }, 5000);
       }
     },
     async handleReset() {
@@ -385,22 +405,25 @@ export default {
           codigo: this.codigo,
           nuevaPassword: this.nuevaPassword
         });
+        this.toastType = 'success';
         this.toastMsg = 'Contraseña restablecida correctamente. Ahora puedes iniciar sesión.';
         setTimeout(() => {
           this.toastMsg = '';
-        }, 4000);
-        // Vuelve al login
+        }, 5000);
         this.showReset = false;
         this.showForgot = false;
         this.codigo = '';
         this.nuevaPassword = '';
         this.password = '';
-        // Si la ruta es /recuperar-clave, vuelve a la raíz
         if (this.$route && this.$route.path === '/recuperar-clave') {
           this.$router.replace('/');
         }
       } catch (err) {
-        this.error = err.response?.data?.error || 'Error al restablecer la contraseña';
+        this.toastType = 'error';
+        this.toastMsg = err.response?.data?.error || 'Error al restablecer la contraseña';
+        setTimeout(() => {
+          this.toastMsg = '';
+        }, 5000);
       }
     },
     cancelarReset() {
@@ -701,6 +724,29 @@ export default {
   -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
   -webkit-text-fill-color: #1e3c72 !important;
 }
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 4;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  width: 32px;
+  /* Prevent overlap with label */
+  pointer-events: auto;
+}
+.form-floating .toggle-password {
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+}
 .login-actions {
   display: flex;
   justify-content: space-between;
@@ -883,60 +929,72 @@ export default {
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
-.toast-notification {
+.toast-notification { display: none; }
+.cart-toast.toast-bottom-right {
   position: fixed;
-  top: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #42b983;
+  right: 36px;
+  bottom: 36px;
+  min-width: 220px;
+  max-width: 380px;
+  background: rgba(34, 40, 60, 0.38);
   color: #fff;
-  padding: 1.1rem 2.5rem;
-  border-radius: 18px;
-  font-size: 1.18rem;
-  font-weight: 800;
-  box-shadow: 0 4px 24px #1e3c7240;
-  z-index: 9999;
-  text-align: center;
-  opacity: 0.97;
-  letter-spacing: 0.5px;
-}
-.toast-bottom-right {
-  top: auto;
-  bottom: 40px;
-  left: auto;
-  right: 40px;
-  transform: none;
-  min-width: 260px;
-  max-width: 90vw;
-  text-align: right;
-}
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.4s;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-.toggle-password {
-  position: absolute;
-  top: 50%;
-  right: 18px;
-  transform: translateY(-50%);
-  cursor: pointer;
-  z-index: 3;
-  background: none;
-  border: none;
-  padding: 0;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(30,60,114,0.22), 0 2px 12px rgba(66,185,131,0.13);
+  padding: 1.2em 2.1em 1.2em 1.5em;
+  font-size: 1.09rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
+  gap: 1.05em;
+  z-index: 50000;
+  user-select: none;
+  border: none;
+  opacity: 0.98;
+  animation: perfil-snackbar-pop 0.42s cubic-bezier(.4,0,.2,1);
+  transition: background 0.22s, color 0.22s, opacity 0.22s, box-shadow 0.22s;
+  pointer-events: auto;
+  backdrop-filter: blur(18px) saturate(1.7);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  text-align: left;
+  letter-spacing: 0.5px;
 }
-.toggle-password svg {
-  display: block;
-  width: 22px;
-  height: 22px;
-  opacity: 0.85;
-  transition: opacity 0.15s;
+.toast-check {
+  color: #42e6a4;
+  font-size: 1.35em;
+  font-weight: bold;
+  margin-right: 0.7em;
+  display: inline-flex;
+  align-items: center;
+  filter: drop-shadow(0 1px 2px #42b98388);
+  min-width: 1.3em;
+  text-align: center;
 }
-.toggle-password:hover svg {
-  opacity: 1;
+.toast-error-icon {
+  color: #ff5a5a;
+  font-size: 1.35em;
+  font-weight: bold;
+  margin-right: 0.7em;
+  display: inline-flex;
+  align-items: center;
+  filter: drop-shadow(0 1px 2px #ff5a5a88);
+  min-width: 1.3em;
+  text-align: center;
+}
+@keyframes perfil-snackbar-pop {
+  0% { opacity: 0; transform: translateY(32px) scale(0.98); }
+  100% { opacity: 0.98; transform: translateY(0) scale(1); }
+}
+@media (max-width: 700px) {
+  .cart-toast.toast-bottom-right {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    min-width: 120px;
+    max-width: 90vw;
+    font-size: 0.93rem;
+    border-radius: 10px;
+    padding: 0.5em 1em 0.5em 0.7em;
+    margin: 0 auto;
+  }
 }
 </style>
