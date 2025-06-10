@@ -4,6 +4,7 @@ import AdminMovimientos from '@/components/admin/Movimientos.vue'
 import AdminRepuestos from '@/components/admin/Repuestos.vue'
 import AdminUsuarios from '@/components/admin/Usuarios.vue'
 import AdminVentas from '@/components/admin/Ventas.vue'
+import AdminDashboard from '@/components/admin/Dashboard.vue'
 
 
 const routes = [
@@ -11,6 +12,8 @@ const routes = [
     path: '/admin',
     component: AdminLayout,
     children: [
+      { path: '', redirect: 'dashboard' }, // Redirige /admin a /admin/dashboard
+      { path: 'dashboard', component: AdminDashboard },
       { path: 'movimientos', component: AdminMovimientos },
       { path: 'repuestos', component: AdminRepuestos },
       { path: 'usuarios', component: AdminUsuarios },

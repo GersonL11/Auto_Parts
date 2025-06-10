@@ -340,6 +340,9 @@ export default {
               this.toastMsg = '';
               this.$emit('login-success', res.data.usuario);
             }, 5000);
+          } else if (res.data.usuario && res.data.usuario.rol === 'admin') {
+            this.$emit('login-success', res.data.usuario); // Oculta el login en el padre
+            this.$router.push('/admin/dashboard'); // Redirige al dashboard de admin
           } else {
             this.$emit('login-success', res.data.usuario);
           }

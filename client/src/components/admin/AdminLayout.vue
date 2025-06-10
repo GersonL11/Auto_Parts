@@ -1,12 +1,17 @@
 <template>
-  <div>
-    <div class="sidebar-backdrop" v-if="open" @click="closeSidebar"></div>
+  <div class="admin-layout">
     <aside class="sidebar" :class="{ open }">
-      <button class="sidebar-toggle" @click="closeSidebar">
-        <i class="fas fa-times"></i>
-      </button>
+      <div class="sidebar-logo">
+        <i class="fas fa-cogs"></i>
+        <span>AutoParts</span>
+      </div>
       <nav>
         <ul>
+          <li>
+            <router-link to="/admin/dashboard" @click="closeSidebar">
+              <i class="fas fa-tachometer-alt"></i> Dashboard
+            </router-link>
+          </li>
           <li>
             <router-link to="/admin/movimientos" @click="closeSidebar">
               <i class="fas fa-exchange-alt"></i> Movimientos
@@ -30,10 +35,6 @@
         </ul>
       </nav>
     </aside>
-    <button class="sidebar-fab" v-if="!open" @click="openSidebar" aria-label="Abrir menú">
-      <i class="fas fa-bars"></i>
-    </button>
-    <!-- Aquí va el contenido de la ruta seleccionada -->
     <div class="admin-content">
       <router-view />
     </div>
@@ -42,54 +43,44 @@
 
 <script>
 export default {
-  name: 'SidebarMenu',
+  name: 'AdminLayout',
   data() {
-    return { open: false }
+    return { open: true }
   },
   methods: {
-    openSidebar() { this.open = true },
-    closeSidebar() { this.open = false },
-    navigate(page) {
-      this.$emit('navigate', page)
-      this.closeSidebar()
-    }
+    closeSidebar() { this.open = false }
   }
 }
 </script>
 
 <style scoped>
-.sidebar-backdrop {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(30,60,114,0.18);
-  z-index: 1001;
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f7fb;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 .sidebar {
-  position: fixed;
-  top: 0; left: 0;
   width: 240px;
-  height: 100vh;
-  background: linear-gradient(135deg, #232b36 80%, #42b983 100%);
+  background: #232b36;
   color: #fff;
+  min-height: 100vh;
   box-shadow: 2px 0 16px #1e3c7244;
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-  z-index: 1002;
-  padding: 2rem 1.2rem 1.2rem 1.2rem;
   display: flex;
   flex-direction: column;
+  padding: 2rem 1rem 1rem 1rem;
 }
-.sidebar.open {
-  transform: translateX(0);
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 2.5rem;
+  color: #42b983;
 }
-.sidebar-toggle {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.6rem;
-  align-self: flex-end;
-  margin-bottom: 2rem;
-  cursor: pointer;
+.sidebar-logo i {
+  font-size: 2rem;
 }
 .sidebar nav ul {
   list-style: none;
@@ -102,44 +93,66 @@ export default {
 .sidebar nav a {
   color: #fff;
   text-decoration: none;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.13rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  transition: color 0.18s;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  transition: background 0.18s, color 0.18s;
 }
+.sidebar nav a.router-link-exact-active,
 .sidebar nav a:hover {
-  color: #00eaff;
-}
-.sidebar-fab {
-  position: fixed;
-  top: 2.2rem;
-  left: 2.2rem;
-  z-index: 1000;
   background: #42b983;
   color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  font-size: 1.5rem;
-  box-shadow: 0 2px 8px #42b98344;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.18s;
-}
-.sidebar-fab:hover {
-  background: #00eaff;
 }
 .admin-content {
-  margin-left: 240px;
-  padding: 2rem;
+  flex: 1;
+  padding: 2.5rem 2rem 2rem 2rem;
 }
-@media (max-width: 600px) {
-  .sidebar { width: 80vw; }
-  .admin-content { margin-left: 80vw; }
+.dashboard-cards {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+.dashboard-card {
+  flex: 1 1 220px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #42b98322;
+  padding: 2rem 1.5rem 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 220px;
+  max-width: 320px;
+}
+.dashboard-card.visits { background: #ff5a8a; color: #fff; }
+.dashboard-card.revenue { background: #6c63ff; color: #fff; }
+.dashboard-card.orders { background: #1cc8ee; color: #fff; }
+.dashboard-card.users { background: #1ecab8; color: #fff; }
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  opacity: 0.85;
+  margin-bottom: 0.7rem;
+  letter-spacing: 1px;
+}
+.card-value {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+}
+.card-desc {
+  font-size: 1rem;
+  opacity: 0.95;
+}
+.card-desc .up { color: #00e676; font-weight: bold; }
+.card-desc .down { color: #ff5252; font-weight: bold; }
+@media (max-width: 900px) {
+  .dashboard-cards { flex-direction: column; gap: 1.2rem; }
+  .sidebar { width: 70vw; }
 }
 </style>

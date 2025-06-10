@@ -17,13 +17,27 @@ var _Usuarios = _interopRequireDefault(require("@/components/admin/Usuarios.vue"
 
 var _Ventas = _interopRequireDefault(require("@/components/admin/Ventas.vue"));
 
+var _Dashboard = _interopRequireDefault(require("@/components/admin/Dashboard.vue"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-// Puedes agregar aquí rutas públicas si lo necesitas
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
 var routes = [{
   path: '/admin',
   component: _AdminLayout["default"],
   children: [{
+    path: '',
+    redirect: 'dashboard'
+  }, // Redirige /admin a /admin/dashboard
+  {
+    path: 'dashboard',
+    component: _Dashboard["default"]
+  }, {
     path: 'movimientos',
     component: _Movimientos["default"]
   }, {
@@ -36,6 +50,14 @@ var routes = [{
     path: 'ventas',
     component: _Ventas["default"]
   }]
+}, {
+  path: '/',
+  name: 'Home',
+  component: function component() {
+    return Promise.resolve().then(function () {
+      return _interopRequireWildcard(require('@/components/cliente/Home.vue'));
+    });
+  }
 }];
 var router = (0, _vueRouter.createRouter)({
   history: (0, _vueRouter.createWebHistory)(),
