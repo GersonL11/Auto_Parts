@@ -39,7 +39,9 @@
       @show-contact="goTo('contact')"
       @show-parts="goTo('parts')"
       :categoria-inicial="categoriaInicialPiezas"
-    />    <AppHeader
+    />
+    <AdminLayout v-if="usuario && usuario.rol === 'admin' && currentPage === 'admin'" @navigate="handleSidebarNav" />
+    <AppHeader
       v-if="!showLogin"
       :current="currentPage"
       :usuario="usuario"
@@ -97,7 +99,6 @@
       @pago-completado="pagoCompletado"
       @cancelar="cancelarPago"
     />
-    <router-view />
   </div>
 </template>
 
@@ -109,6 +110,7 @@ import Contact from './components/cliente/Contact.vue'
 import CatalogoPiezas from './components/cliente/Piezas.vue'
 import FooterAutoParts from './components/cliente/FooterAutoParts.vue'
 import ScrollToTop from './components/cliente/ScrollToTop.vue'
+import AdminLayout from './components/admin/AdminLayout.vue'
 import CarritoFloatBtn from './components/cliente/Carrito.vue'
 import CarritoModal from './components/cliente/CarritoModal.vue'
 import Pagar from './components/cliente/Pagar.vue'
@@ -127,6 +129,7 @@ export default {
     CatalogoPiezas,
     FooterAutoParts,
     ScrollToTop,
+    AdminLayout,
     CarritoFloatBtn,
     CarritoModal,
     Pagar,
