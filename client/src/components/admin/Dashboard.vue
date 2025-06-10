@@ -35,7 +35,6 @@ export default {
   gap: 2rem;
   margin-bottom: 2.5rem;
   flex-wrap: wrap;
-  margin-top: 90px; 
 }
 .dashboard-card {
   flex: 1 1 220px;
