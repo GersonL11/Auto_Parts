@@ -1,31 +1,60 @@
 <template>
   <div class="dashboard-cards">
-    <div class="dashboard-card visits">
-      <div class="card-title">DAILY VISITS</div>
-      <div class="card-value">8,652</div>
-      <div class="card-desc"><span class="down">▼ 2.97%</span> Since last month</div>
+    <div class="dashboard-card users">
+      <div class="card-title">USUARIOS</div>
+      <div class="card-value">{{ totalUsuarios }}</div>
+      <div class="card-desc">Total registrados</div>
+    </div>
+    <div class="dashboard-card repuestos">
+      <div class="card-title">REPUESTOS</div>
+      <div class="card-value">{{ totalRepuestos }}</div>
+      <div class="card-desc">Total en inventario</div>
+    </div>
+    <div class="dashboard-card movimientos">
+      <div class="card-title">MOVIMIENTOS</div>
+      <div class="card-value">{{ totalMovimientos }}</div>
+      <div class="card-desc">Entradas y salidas</div>
     </div>
     <div class="dashboard-card revenue">
-      <div class="card-title">REVENUE</div>
-      <div class="card-value">$9,254.62</div>
-      <div class="card-desc"><span class="up">▲ 18.25%</span> Since last month</div>
-    </div>
-    <div class="dashboard-card orders">
-      <div class="card-title">ORDERS</div>
-      <div class="card-value">753</div>
-      <div class="card-desc"><span class="down">▼ 5.75%</span> Since last month</div>
-    </div>
-    <div class="dashboard-card users">
-      <div class="card-title">USERS</div>
-      <div class="card-value">63,154</div>
-      <div class="card-desc"><span class="up">▲ 8.21%</span> Since last month</div>
+      <div class="card-title">VENTAS</div>
+      <div class="card-value">L {{ totalVentas.toLocaleString() }}</div>
+      <div class="card-desc">Total vendido</div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'AdminDashboard'
+  name: 'AdminDashboard',
+  data() {
+    return {
+      totalUsuarios: 0,
+      totalRepuestos: 0,
+      totalMovimientos: 0,
+      totalVentas: 0
+    }
+  },
+  async mounted() {
+    // Usuarios
+    const usuariosRes = await fetch('http://localhost:3000/api/usuarios');
+    const usuarios = await usuariosRes.json();
+    this.totalUsuarios = usuarios.length;
+
+    // Repuestos
+    const repuestosRes = await fetch('http://localhost:3000/api/repuestos');
+    const repuestos = await repuestosRes.json();
+    this.totalRepuestos = repuestos.length;
+
+    // Movimientos
+    const movimientosRes = await fetch('http://localhost:3000/api/movimientos');
+    const movimientos = await movimientosRes.json();
+    this.totalMovimientos = movimientos.length;
+
+    // Ventas
+    const ventasRes = await fetch('http://localhost:3000/api/ventas');
+    const ventas = await ventasRes.json();
+    this.totalVentas = ventas.reduce((sum, v) => sum + (Number(v.total) || 0), 0);
+  }
 }
 </script>
 
@@ -48,10 +77,10 @@ export default {
   min-width: 220px;
   max-width: 320px;
 }
-.dashboard-card.visits { background: #ff5a8a; color: #fff; }
-.dashboard-card.revenue { background: #6c63ff; color: #fff; }
-.dashboard-card.orders { background: #1cc8ee; color: #fff; }
 .dashboard-card.users { background: #1ecab8; color: #fff; }
+.dashboard-card.repuestos { background: #ffb300; color: #fff; }
+.dashboard-card.movimientos { background: #1cc8ee; color: #fff; }
+.dashboard-card.revenue { background: #6c63ff; color: #fff; }
 .card-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -68,11 +97,8 @@ export default {
   font-size: 1rem;
   opacity: 0.95;
 }
-.card-desc .up { color: #00e676; font-weight: bold; }
-.card-desc .down { color: #ff5252; font-weight: bold; }
 @media (max-width: 900px) {
   .dashboard-cards { flex-direction: column; gap: 1.2rem; }
   .sidebar { width: 70vw; }
 }
-/* Copia aquí los estilos de .dashboard-cards y .dashboard-card de tu AdminLayout.vue */
 </style>
