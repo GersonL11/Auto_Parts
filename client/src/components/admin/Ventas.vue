@@ -115,10 +115,20 @@ export default {
   padding: 2rem;
 }
 .admin-header {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  padding: 0;
+}
+.admin-header h1 {
+  border-bottom: 2.5px solid #ff9800;
+  margin-bottom: 0;
+  padding-bottom: 0.2rem;
+  background: none !important;
 }
 .btn-agregar {
   background: #42b983;

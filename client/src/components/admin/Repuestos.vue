@@ -249,14 +249,20 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .admin-header {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
+  padding: 0;
 }
 .admin-header h1 {
-  font-size: 24px;
-  margin: 0;
+  border-bottom: 2.5px solid #ff9800;
+  margin-bottom: 0;
+  padding-bottom: 0.2rem;
+  background: none !important;
 }
 .btn-agregar {
   background: #42b983;
@@ -485,5 +491,23 @@ form {
     flex-direction: column;
     gap: 0.7rem;
   }
+}
+</style>
+
+<style>
+.admin-dark-mode .admin-section {
+  background: #181c22 !important;
+  box-shadow: 0 4px 8px #000a !important;
+  border-radius: 8px !important;
+}
+.admin-dark-mode .admin-table {
+  background: #232b36 !important;
+  box-shadow: 0 2px 8px #000a !important;
+  border-radius: 12px !important;
+  border: none !important;
+}
+.admin-dark-mode .admin-table th, 
+.admin-dark-mode .admin-table td {
+  border-bottom: 1px solid #232b36 !important;
 }
 </style>

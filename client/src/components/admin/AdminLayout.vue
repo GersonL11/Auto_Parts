@@ -1,5 +1,6 @@
 <template>
   <div class="admin-layout">
+    <AdminHeader />
     <MenuBarra :open="open" @close-sidebar="closeSidebar" />
     <div class="admin-content">
       <router-view />
@@ -9,9 +10,10 @@
 
 <script>
 import MenuBarra from './MenuBarra.vue';
+import AdminHeader from './AdminHeader.vue';
 export default {
   name: 'AdminLayout',
-  components: { MenuBarra },
+  components: { MenuBarra, AdminHeader },
   data() {
     return { open: true }
   },
