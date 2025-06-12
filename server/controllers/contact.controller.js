@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const Correo = require('../models/Correo');
 
 exports.enviarContacto = async (req, res) => {
   const { nombre, correo, telefono, mensaje } = req.body;
@@ -7,6 +8,9 @@ exports.enviarContacto = async (req, res) => {
   }
 
   try {
+    // Guardar en la base de datos
+    await Correo.create({ nombre, correo, telefono, mensaje });
+
     const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 587;
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -36,7 +40,7 @@ Mensaje: ${mensaje}
         <p><b>Teléfono:</b> ${telefono || 'No proporcionado'}</p>
         <p><b>Mensaje:</b><br>${mensaje}</p>
       `
-    });
+    }); // cierre de sendMail
 
     // Correo de confirmación para el usuario
     await transporter.sendMail({
@@ -55,7 +59,7 @@ Mensaje: ${mensaje}
         </ul>
         <p>Gracias por contactarnos.<br>AutoParts</p>
       `
-    });
+    }); // cierre de sendMail
 
     res.json({ message: 'Mensaje enviado correctamente' });
   } catch (err) {

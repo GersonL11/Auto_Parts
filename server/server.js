@@ -11,6 +11,7 @@ const ventaRoutes = require('./routes/venta.routes');
 const authRoutes = require('./routes/auth.routes');
 const contactRoutes = require('./routes/contact.routes');
 const pagoRoutes = require('./routes/pago.routes');
+const correoRoutes = require('./routes/correo.routes');
 
 app.use(cors());
 app.use(express.json());
@@ -26,6 +27,7 @@ app.use('/api/ventas', ventaRoutes);
 app.use('/api', authRoutes);
 app.use('/api/contacto', contactRoutes);
 app.use('/api/pago', pagoRoutes);
+app.use('/api/correos', correoRoutes);
 
 app.listen(3000, () => {
   console.log('Servidor corriendo en http://localhost:3000');
