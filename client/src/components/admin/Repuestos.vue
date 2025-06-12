@@ -44,59 +44,60 @@
 
     <!-- Modal -->
     <div v-if="showModal" class="modal-bg" @click.self="cerrarModal">
-      <div class="modal-form modal-form-grid">
-        <h2>{{ editando ? 'Editar Repuesto' : 'Agregar Repuesto' }}</h2>
+      <div class="modal-form repuesto-modal-glass">
+        <div class="modal-header">
+          <h2>{{ editando ? 'Editar Repuesto' : 'Agregar Repuesto' }}</h2>
+          <button class="modal-close" @click="cerrarModal">&times;</button>
+        </div>
         <form @submit.prevent="guardar">
-          <div class="form-row form-row-img">
-            <label>Imagen</label>
-            <div class="custom-file-input-wrapper">
-              <input id="fileInput" type="file" accept="image/*" @change="onFileChange" />
-              <label for="fileInput" class="custom-file-label">
-                {{ fileName || 'Selecciona una imagen...' }}
-              </label>
-            </div>
-            <div v-if="previewImg" class="img-preview-wrapper">
-              <img :src="previewImg" alt="Previsualización" class="img-preview" />
-            </div>
-          </div>
-          <div class="form-row-pair">
-            <div class="form-row">
+          <div class="repuesto-form-grid-3">
+            <div>
               <label>Nombre</label>
               <input v-model="form.nombre" required />
             </div>
-            <div class="form-row">
+            <div>
               <label>Marca</label>
               <input v-model="form.marca" />
             </div>
-          </div>
-          <div class="form-row-pair">
-            <div class="form-row">
+            <div>
               <label>Modelo</label>
               <input v-model="form.modelo" />
             </div>
-            <div class="form-row">
+            <div>
               <label>Año</label>
               <input v-model="form.año" type="number" />
             </div>
-          </div>
-          <div class="form-row-pair">
-            <div class="form-row">
+            <div>
               <label>Estado</label>
               <input v-model="form.estado" />
             </div>
-            <div class="form-row">
+            <div>
               <label>Cantidad</label>
               <input v-model="form.cantidad" type="number" />
             </div>
-          </div>
-          <div class="form-row-pair">
-            <div class="form-row">
+            <div>
               <label>Precio</label>
               <input v-model="form.precio" type="number" />
             </div>
-            <div class="form-row">
+            <div>
               <label>Ubicación</label>
               <input v-model="form.ubicacion" />
+            </div>
+            <div>
+              <label>Categoría</label>
+              <input v-model="form.categoria" />
+            </div>
+            <div>
+              <label>País de fabricación</label>
+              <input v-model="form.paisFabricacion" />
+            </div>
+            <div class="repuesto-img-upload">
+              <label>Imagen</label>
+              <input type="file" accept="image/*" @change="onFileChange" />
+              <div v-if="subiendoFoto" class="repuesto-img-cargando"><i class="fas fa-spinner fa-spin"></i> Subiendo...</div>
+              <div v-if="form.imagen" class="repuesto-img-preview">
+                <img :src="form.imagen" alt="Imagen repuesto" />
+              </div>
             </div>
           </div>
           <div class="modal-actions">
@@ -131,6 +132,9 @@ export default {
         cantidad: '',
         precio: '',
         ubicacion: '',
+        categoria: '',
+        paisFabricacion: '',
+        fechaRegistro: '',
         imagen: ''
       }
     }
@@ -142,6 +146,30 @@ export default {
     async cargarRepuestos() {
       const res = await fetch('http://localhost:3000/api/repuestos');
       this.repuestos = await res.json();
+    },
+    async onFileChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      this.subiendoFoto = true;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'autoparts_perfil'); // Usa tu preset de Cloudinary
+      formData.append('folder', 'repuestos');
+      try {
+        const res = await fetch('https://api.cloudinary.com/v1_1/dwqtxkizy/image/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.secure_url) {
+          this.form.imagen = data.secure_url;
+        } else {
+          alert('Error al subir la imagen');
+        }
+      } catch (err) {
+        alert('Error al subir la imagen');
+      }
+      this.subiendoFoto = false;
     },
     abrirModal(rep = null) {
       if (rep) {
@@ -163,7 +191,9 @@ export default {
           estado: '',
           cantidad: '',
           precio: '',
-          ubicacion: '',
+          categoria: '',
+          paisFabricacion: '',
+          fechaRegistro: new Date().toISOString().substr(0, 10),
           imagen: ''
         };
         this.previewImg = '';
@@ -200,34 +230,25 @@ export default {
       this.subiendoImagen = false;
     },
     async guardar() {
-      const repuestoData = {
-        nombre: this.form.nombre,
-        marca: this.form.marca,
-        modelo: this.form.modelo,
-        año: this.form.año,
-        estado: this.form.estado,
-        cantidad: this.form.cantidad,
-        precio: this.form.precio,
-        ubicacion: this.form.ubicacion,
-        imagen: this.form.imagen || ''
-      };
-      if (this.editando) {
-        // UPDATE
-        await fetch(`http://localhost:3000/api/repuestos/${this.form._id}`, {
-          method: 'PUT',
+      try {
+        const body = { ...this.form };
+        if (!this.editando) delete body._id;
+        // No enviar fechaRegistro
+        delete body.fechaRegistro;
+        const url = this.editando
+          ? `http://localhost:3000/api/repuestos/${this.form._id}`
+          : 'http://localhost:3000/api/repuestos';
+        const method = this.editando ? 'PUT' : 'POST';
+        await fetch(url, {
+          method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(repuestoData)
+          body: JSON.stringify(body)
         });
-      } else {
-        // CREATE
-        await fetch('http://localhost:3000/api/repuestos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(repuestoData)
-        });
+        this.cerrarModal();
+        this.cargarRepuestos();
+      } catch (e) {
+        alert('Error al guardar repuesto');
       }
-      this.cerrarModal();
-      this.cargarRepuestos();
     },
     async eliminar(id) {
       if (confirm('¿Estás seguro de eliminar este repuesto?')) {
@@ -320,103 +341,114 @@ export default {
 }
 .modal-bg {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgba(30, 41, 59, 0.35);
+  z-index: 1000;
   display: flex;
   justify-content: center;
+}
+.repuesto-modal-glass {
+  width: 700px;
+  max-width: 96vw;
+  background: rgba(255,255,255,0.55);
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 28px;
+  padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+  position: relative;
+  margin: 2rem 0;
+}
+.modal-header {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
 }
-.modal-form {
+.modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #222;
+}
+.modal-close {
   background: #fff;
-  padding: 2rem 2.5rem;
-  border-radius: 24px;
-  box-shadow: 0 8px 32px #42b98344;
-  min-width: 340px;
-  max-width: 95vw;
-  border: 1.5px solid #42b98322;
-  transition: box-shadow 0.18s, border 0.18s;
-}
-.modal-form h2 {
-  text-align: center;
+  border: none;
   font-size: 2rem;
-  font-weight: 900;
-  margin-bottom: 1.5rem;
-  color: #232b36;
-  letter-spacing: 1px;
+  color: #e74c3c;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
 }
-form {
-  width: 100%;
+.modal-close:hover {
+  background: #ffeaea;
+}
+.repuesto-form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.1rem 1.5rem;
+  margin-bottom: 1.2rem;
+}
+.repuesto-form-grid-3 > div {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
 }
-.form-row-pair {
-  display: flex;
-  gap: 1.2rem;
-}
-.form-row {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 0;
-}
-.form-row label {
-  font-weight: 700;
+.repuesto-form-grid-3 label {
+  font-weight: 600;
   margin-bottom: 0.3rem;
-  color: #1e3c72;
-  letter-spacing: 0.5px;
+  color: #222;
 }
-.form-row input {
-  padding: 0.55rem 0.9rem;
+.repuesto-form-grid-3 input[type="text"],
+.repuesto-form-grid-3 input[type="number"],
+.repuesto-form-grid-3 input[type="file"] {
+  border: 1.5px solid #1ecab8;
   border-radius: 8px;
-  border: 1.5px solid #42b983;
-  font-size: 1.05rem;
-  background: #f8fafc;
-  margin-bottom: 0.1rem;
-  transition: border 0.18s, box-shadow 0.18s;
+  padding: 0.4rem 0.7rem;
+  font-size: 1rem;
+  outline: none;
+  background: #f8fafd;
+  transition: border 0.2s;
 }
-.form-row input:focus {
-  border: 1.5px solid #1e3c72;
-  box-shadow: 0 2px 8px #42b98333;
-  background: #fff;
+.repuesto-form-grid-3 input:focus {
+  border-color: #6c63ff;
 }
-.form-row-img {
+.repuesto-img-upload {
+  grid-column: span 3;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
 }
-.form-row-img label {
-  font-weight: 700;
-  color: #1e3c72;
-  margin-bottom: 0.3rem;
-}
-.img-preview-wrapper {
+.repuesto-img-preview img {
+  max-width: 120px;
+  max-height: 120px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #42b98322;
   margin-top: 0.5rem;
 }
-.img-preview {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1.5px solid #42b98344;
-  box-shadow: 0 2px 8px #42b98322;
+.repuesto-img-cargando {
+  color: #42b983;
+  font-weight: bold;
 }
 .modal-actions {
   display: flex;
-  gap: 1rem;
+  gap: 1.2rem;
+  justify-content: flex-end;
   margin-top: 1.2rem;
   justify-content: flex-end;
 }
 .btn-guardar {
-  background: #42b983;
+  background: linear-gradient(90deg, #1ecab8 60%, #6c63ff 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 1.5rem;
   font-weight: bold;
+  font-size: 1.1rem;
   cursor: pointer;
   font-size: 1.05rem;
   transition: background 0.18s, box-shadow 0.18s;
@@ -426,12 +458,13 @@ form {
   box-shadow: 0 2px 8px #1e3c7244;
 }
 .btn-cancelar {
-  background: #e0e0e0;
-  color: #232b36;
+  background: #eee;
+  color: #222;
   border: none;
   border-radius: 8px;
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 1.5rem;
   font-weight: bold;
+  font-size: 1.1rem;
   cursor: pointer;
   font-size: 1.05rem;
   transition: background 0.18s;
