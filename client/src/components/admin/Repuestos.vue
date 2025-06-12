@@ -7,6 +7,7 @@
     <table class="admin-table">
       <thead>
         <tr>
+          <th>Imagen</th>
           <th>Nombre</th>
           <th>Marca</th>
           <th>Modelo</th>
@@ -21,6 +22,9 @@
       </thead>
       <tbody>
         <tr v-for="rep in repuestos" :key="rep._id">
+          <td>
+            <img v-if="rep.imagen" :src="rep.imagen" alt="Imagen" style="width:48px;height:48px;object-fit:cover;border-radius:8px;" />
+          </td>
           <td>{{ rep.nombre }}</td>
           <td>{{ rep.marca }}</td>
           <td>{{ rep.modelo }}</td>
@@ -97,8 +101,9 @@
             </div>
           </div>
           <div class="modal-actions">
-            <button type="submit" class="btn-guardar">Guardar</button>
+            <button type="submit" class="btn-guardar" :disabled="subiendoImagen">Guardar</button>
             <button type="button" class="btn-cancelar" @click="cerrarModal">Cancelar</button>
+            <span v-if="subiendoImagen" style="margin-left:1rem;color:#007bff;font-weight:bold;">Subiendo imagen...</span>
           </div>
         </form>
       </div>
@@ -114,7 +119,9 @@ export default {
       repuestos: [],
       showModal: false,
       editando: false,
-      subiendoFoto: false,
+      previewImg: '',
+      subiendoImagen: false,
+      fileName: '',
       form: {
         _id: null,
         nombre: '',
@@ -167,10 +174,12 @@ export default {
     abrirModal(rep = null) {
       if (rep) {
         this.editando = true;
-        this.form = {
-          ...rep,
-          fechaRegistro: rep.fechaRegistro ? rep.fechaRegistro.substr(0, 10) : ''
-        };
+        this.form = { ...rep };
+        this.previewImg = rep.imagen || '';
+        this.fileName = '';
+        if (!this.form.imagen && rep.imagen) {
+          this.form.imagen = rep.imagen;
+        }
       } else {
         this.editando = false;
         this.form = {
@@ -182,17 +191,43 @@ export default {
           estado: '',
           cantidad: '',
           precio: '',
-          ubicacion: '',
           categoria: '',
           paisFabricacion: '',
           fechaRegistro: new Date().toISOString().substr(0, 10),
           imagen: ''
         };
+        this.previewImg = '';
+        this.fileName = '';
       }
       this.showModal = true;
     },
     cerrarModal() {
       this.showModal = false;
+    },
+    async onFileChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      this.fileName = file.name;
+      this.subiendoImagen = true;
+      this.previewImg = URL.createObjectURL(file);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'autoparts_repuestos'); 
+      try {
+        const res = await fetch('https://api.cloudinary.com/v1_1/dwqtxkizy/image/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.secure_url) {
+          this.form.imagen = data.secure_url;
+        } else {
+          alert('Error al subir la imagen.');
+        }
+      } catch (error) {
+        alert('Error de red al subir la imagen.');
+      }
+      this.subiendoImagen = false;
     },
     async guardar() {
       try {
@@ -216,7 +251,7 @@ export default {
       }
     },
     async eliminar(id) {
-      if (confirm('¿Seguro que deseas eliminar este repuesto?')) {
+      if (confirm('¿Estás seguro de eliminar este repuesto?')) {
         await fetch(`http://localhost:3000/api/repuestos/${id}`, {
           method: 'DELETE'
         });
@@ -229,13 +264,20 @@ export default {
 
 <style scoped>
 .admin-section {
-  padding: 2rem;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
+}
+.admin-header h1 {
+  font-size: 24px;
+  margin: 0;
 }
 .btn-agregar {
   background: #42b983;
@@ -245,6 +287,11 @@ export default {
   padding: 0.6rem 1.2rem;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+.btn-agregar:hover {
+  background: #1e3c72;
+  box-shadow: 0 2px 8px #1e3c7244;
 }
 .admin-table {
   width: 100%;
@@ -261,6 +308,11 @@ export default {
 }
 .admin-table th {
   background: #f5f7fa;
+  color: #333;
+  font-weight: 600;
+}
+.admin-table tr:hover {
+  background-color: #f1f1f1;
 }
 .btn-editar, .btn-eliminar {
   margin-right: 0.5rem;
@@ -269,14 +321,23 @@ export default {
   padding: 0.4rem 0.9rem;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
 }
 .btn-editar {
   background: #00bcd4;
   color: #fff;
 }
+.btn-editar:hover {
+  background: #0097a7;
+  box-shadow: 0 2px 8px #00bcd444;
+}
 .btn-eliminar {
   background: #ff5252;
   color: #fff;
+}
+.btn-eliminar:hover {
+  background: #c62828;
+  box-shadow: 0 2px 8px #ff525244;
 }
 .modal-bg {
   position: fixed;
@@ -284,7 +345,6 @@ export default {
   background: rgba(30, 41, 59, 0.35);
   z-index: 1000;
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 .repuesto-modal-glass {
@@ -379,6 +439,7 @@ export default {
   gap: 1.2rem;
   justify-content: flex-end;
   margin-top: 1.2rem;
+  justify-content: flex-end;
 }
 .btn-guardar {
   background: linear-gradient(90deg, #1ecab8 60%, #6c63ff 100%);
@@ -389,10 +450,12 @@ export default {
   font-weight: bold;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background 0.2s;
+  font-size: 1.05rem;
+  transition: background 0.18s, box-shadow 0.18s;
 }
 .btn-guardar:hover {
-  background: linear-gradient(90deg, #1cc8ee 60%, #6c63ff 100%);
+  background: #1e3c72;
+  box-shadow: 0 2px 8px #1e3c7244;
 }
 .btn-cancelar {
   background: #eee;
@@ -403,14 +466,57 @@ export default {
   font-weight: bold;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background 0.2s;
+  font-size: 1.05rem;
+  transition: background 0.18s;
 }
 .btn-cancelar:hover {
-  background: #e0e0e0;
+  background: #ff5252;
+  color: #fff;
 }
-@media (max-width: 900px) {
-  .repuesto-modal-glass { width: 99vw; padding: 1.2rem 0.5rem; }
-  .repuesto-form-grid-3 { grid-template-columns: 1fr; }
-  .repuesto-img-upload { grid-column: span 1; }
+.custom-file-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.custom-file-input-wrapper input[type="file"] {
+  opacity: 0;
+  width: 100%;
+  height: 40px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.custom-file-label {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.9rem;
+  border-radius: 8px;
+  border: 1.5px solid #42b983;
+  background: #f8fafc;
+  color: #1e3c72;
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border 0.18s, box-shadow 0.18s, background 0.18s;
+  z-index: 1;
+  text-align: left;
+}
+.custom-file-input-wrapper input[type="file"]:focus + .custom-file-label,
+.custom-file-label:active {
+  border: 1.5px solid #1e3c72;
+  box-shadow: 0 2px 8px #42b98333;
+  background: #fff;
+}
+@media (max-width: 700px) {
+  .modal-form {
+    padding: 1.2rem 0.5rem;
+  }
+  .form-row-pair {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
 }
 </style>
