@@ -61,7 +61,6 @@ export default {
       try {
         const res = await fetch('http://localhost:3000/api/ventas');
         const ventas = await res.json();
-        // Ordenar por fecha descendente y mostrar solo las 10 más recientes
         this.ventas = ventas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).slice(0, 10);
       } catch (e) {
         this.ventas = [];

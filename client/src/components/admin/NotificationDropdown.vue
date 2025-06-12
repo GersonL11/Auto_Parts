@@ -84,15 +84,14 @@ export default {
         this.correos = [];
       }
       this.loading = false;
-      this.$emit('update-unread', this.noLeidos); // Emitir evento al cargar correos
+      this.$emit('update-unread', this.noLeidos); 
     },
     async marcarLeido(id) {
       try {
         await fetch(`http://localhost:3000/api/correos/${id}/leido`, { method: 'PATCH' });
         await this.fetchCorreos();
-        // El evento ya se emite en fetchCorreos
       } catch (e) {
-        // Error al marcar como leído. Puedes mostrar un mensaje si lo deseas.
+        // Error al marcar como leído. 
       }
     },
     async borrarCorreo(id) {

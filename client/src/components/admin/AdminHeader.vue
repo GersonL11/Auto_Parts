@@ -70,7 +70,7 @@ export default {
     // Actualización automática del contador de notificaciones
     this._notiInterval = setInterval(() => {
       this.fetchUnreadCount();
-    }, 10000); // cada 10 segundos
+    }, 10000); 
   },
   beforeUnmount() {
     if (this._notiInterval) clearInterval(this._notiInterval);
@@ -125,7 +125,6 @@ export default {
       try {
         const res = await fetch('http://localhost:3000/api/ventas');
         const ventas = await res.json();
-        // Solo cuenta las ventas que no están ocultas en localStorage
         const ocultas = JSON.parse(localStorage.getItem('ventas_ocultas') || '[]');
         this.ventasNoLeidas = ventas.filter(v => !ocultas.includes(v._id)).length;
       } catch {
@@ -133,7 +132,6 @@ export default {
       }
     },
     onVentaNotificacionEliminada(id) {
-      // Guarda en localStorage y actualiza el contador
       let ocultas = JSON.parse(localStorage.getItem('ventas_ocultas') || '[]');
       if (!ocultas.includes(id)) {
         ocultas.push(id);
