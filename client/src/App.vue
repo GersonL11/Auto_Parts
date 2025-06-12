@@ -169,9 +169,20 @@ export default {
     this.totalCarrito = carrito.reduce((sum, item) => sum + item.cantidad, 0);
 
     window.addEventListener('carrito-actualizado', this._actualizarTotalCarritoDesdeStorage);
+    // Escuchar logout global desde admin
+    if (this.$root && this.$root.$on) {
+      this.$root.$on('admin-logout', this.logout);
+    } else if (window) {
+      window.addEventListener('admin-logout', this.logout);
+    }
   },
   beforeUnmount() {
     window.removeEventListener('carrito-actualizado', this._actualizarTotalCarritoDesdeStorage);
+    if (this.$root && this.$root.$off) {
+      this.$root.$off('admin-logout', this.logout);
+    } else if (window) {
+      window.removeEventListener('admin-logout', this.logout);
+    }
   },
   methods: {
     handleLoginSuccess(usuario) {
@@ -185,13 +196,24 @@ export default {
       }
     },
     logout() {
-      this.usuario = null
-      localStorage.removeItem('autoparts_user')
-      this.currentPage = 'home'
+      this.usuario = null;
+      localStorage.removeItem('autoparts_user');
+      localStorage.removeItem('carrito');
+      localStorage.removeItem('ventas_ocultas');
+      localStorage.removeItem('admin_dark_mode');
+      localStorage.removeItem('auth_token');
+      // Eliminar clase de dark mode admin si quedó aplicada
+      document.documentElement.classList.remove('admin-dark-mode');
+      document.body.classList.remove('admin-dark-mode');
+      this.currentPage = 'home';
+      if (this.$router) {
+        this.$router.push('/');
+      }
     },
     goTo(page) {
       this.showLogin = false;
       this.currentPage = page;
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       if (page !== 'parts') {
         this.categoriaInicialPiezas = '';
       }
@@ -221,8 +243,9 @@ export default {
     },
     handleFooterNav(page) {
       this.showLogin = false;
+      this.currentPage = page;
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       if (page === 'parts') {
-        this.currentPage = 'parts';
         this.$nextTick(() => {
           setTimeout(() => {
             const el = document.querySelector('.piezas-page');
@@ -230,7 +253,6 @@ export default {
           }, 400);
         });
       } else if (page === 'contact') {
-        this.currentPage = 'contact';
         this.$nextTick(() => {
           setTimeout(() => {
             const el = document.querySelector('.contact-form');
@@ -238,7 +260,6 @@ export default {
           }, 400);
         });
       } else if (page === 'about') {
-        this.currentPage = 'about';
         this.$nextTick(() => {
           setTimeout(() => {
             const el = document.querySelector('.aboutus-page');
@@ -247,8 +268,6 @@ export default {
         });
       } else if (page === 'location') {
         this.scrollToLocation();
-      } else {
-        this.currentPage = page;
       }
     },
     handleSidebarNav(page) {
@@ -271,11 +290,11 @@ export default {
       this.mostrarPagar = false;
       localStorage.setItem('carrito', '[]');
       this._actualizarTotalCarritoDesdeStorage();
-      if (this.currentPage === 'parts' && this.$refs.catalogoPiezas) {
+      if (this.$refs.catalogoPiezas) {
         this.$refs.catalogoPiezas.cargarPiezas();
       }
       alert('¡Pago realizado con éxito!');
-      this.currentPage = 'home';
+      this.currentPage = 'parts';
     },
     cancelarPago() {
       this.mostrarPagar = false;

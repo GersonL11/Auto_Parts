@@ -12,7 +12,7 @@ const routes = [
     path: '/admin',
     component: AdminLayout,
     children: [
-      { path: '', redirect: 'dashboard' }, // Redirige /admin a /admin/dashboard
+      { path: '', redirect: 'dashboard' }, 
       { path: 'dashboard', component: AdminDashboard },
       { path: 'movimientos', component: AdminMovimientos },
       { path: 'repuestos', component: AdminRepuestos },

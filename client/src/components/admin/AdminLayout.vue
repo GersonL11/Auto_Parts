@@ -1,7 +1,7 @@
 <template>
   <div class="admin-layout">
     <AdminHeader />
-    <MenuBarra :open="open" @close-sidebar="closeSidebar" />
+    <MenuBarra :open="open" @close-sidebar="closeSidebar" @logout="handleLogout" />
     <div class="admin-content">
       <router-view />
     </div>
@@ -18,7 +18,19 @@ export default {
     return { open: true }
   },
   methods: {
-    closeSidebar() { this.open = false }
+    closeSidebar() { this.open = false },
+    handleLogout() {
+      // Redirige y limpia sesión globalmente
+      this.$router.push('/');
+      // Limpieza básica de localStorage
+      localStorage.removeItem('autoparts_user');
+      localStorage.removeItem('carrito');
+      localStorage.removeItem('ventas_ocultas');
+      localStorage.removeItem('admin_dark_mode');
+      localStorage.removeItem('auth_token');
+      // Emitir evento global para que App.vue pueda resetear el estado
+      this.$root && this.$root.$emit && this.$root.$emit('admin-logout');
+    }
   }
 }
 </script>
