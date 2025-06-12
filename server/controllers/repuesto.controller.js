@@ -31,6 +31,9 @@ exports.obtenerRepuestoPorId = async (req, res) => {
 // Actualizar repuesto
 exports.actualizarRepuesto = async (req, res) => {
   try {
+    if (req.body.imagen === '' || req.body.imagen === undefined || req.body.imagen === null) {
+      delete req.body.imagen;
+    }
     const repuesto = await Repuesto.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!repuesto) return res.status(404).json({ error: 'Repuesto no encontrado' });
     res.json(repuesto);

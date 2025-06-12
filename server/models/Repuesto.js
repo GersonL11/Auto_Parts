@@ -9,7 +9,8 @@ const repuestoSchema = new mongoose.Schema({
   cantidad: Number,
   precio: Number,
   ubicacion: String,
-  fechaRegistro: { type: Date, default: Date.now }
+  fechaRegistro: { type: Date, default: Date.now },
+  imagen: String
 });
 
 module.exports = mongoose.model('Repuesto', repuestoSchema);
