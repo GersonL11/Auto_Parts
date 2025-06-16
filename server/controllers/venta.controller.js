@@ -1,5 +1,6 @@
 const Venta = require('../models/Venta');
 const Repuesto = require('../models/Repuesto');
+const VentaLeida = require('../models/VentaLeida');
 
 // Crear venta
 exports.crearVenta = async (req, res) => {
@@ -71,6 +72,34 @@ exports.eliminarVenta = async (req, res) => {
     const venta = await Venta.findByIdAndDelete(req.params.id);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
     res.json({ mensaje: 'Venta eliminada' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Marcar una venta como leída por un admin
+exports.marcarVentaLeida = async (req, res) => {
+  try {
+    const { ventaId, adminId } = req.body;
+    if (!ventaId || !adminId) return res.status(400).json({ error: 'Faltan parámetros' });
+    await VentaLeida.findOneAndUpdate(
+      { ventaId, adminId },
+      { leida: true, fecha: new Date() },
+      { upsert: true, new: true }
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Obtener IDs de ventas leídas por un admin
+exports.obtenerVentasLeidasPorAdmin = async (req, res) => {
+  try {
+    const { adminId } = req.query;
+    if (!adminId) return res.status(400).json({ error: 'Falta adminId' });
+    const leidas = await VentaLeida.find({ adminId, leida: true }).select('ventaId -_id');
+    res.json(leidas.map(l => l.ventaId));
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

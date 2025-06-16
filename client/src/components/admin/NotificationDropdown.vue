@@ -151,7 +151,7 @@ export default {
   z-index: 41000;
   background: var(--notif-bg, #fff);
   border: var(--notif-border);
-  border-radius: var(--notif-radius);
+  border-radius: 22px;
   width: 400px;
   max-width: 96vw;
   min-width: 320px;
@@ -163,7 +163,6 @@ export default {
   display: flex;
   flex-direction: column;
   position: relative;
-  /* Elimina cualquier transparencia */
   opacity: 1;
 }
 .notification-modal::before {
@@ -229,34 +228,62 @@ export default {
   font-size: 1em;
 }
 .tab-btn {
-  background: none;
-  border: none;
-  font-size: 1em;
-  font-weight: 600;
-  color: var(--notif-title);
-  padding: 0.7em 1.2em 0.6em 1.2em;
-  border-radius: 10px 10px 0 0;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
   position: relative;
+  padding: 0.45em 1.5em;
+  color: #232b36;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(180deg, #f5f7fa 80%, #e3e8f0 100%);
+  border: 1.5px solid #e3e8f0;
+  border-bottom: none;
+  margin-bottom: -2px;
+  transition: color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.12s;
+  box-shadow: 0 2px 8px #232b3608, 0 1.5px 0 #fff inset;
+  z-index: 1;
+  outline: none;
+  font-size: 1.08em;
+  box-sizing: border-box;
+  min-width: 90px;
+  text-align: center;
+  user-select: none;
+}
+.tab-btn:not(.active):hover {
+  background: #e3e8f0;
+  color: #1e3c72;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 16px #42b98322;
 }
 .tab-btn.active {
-  background: var(--notif-btn-bg);
-  color: var(--notif-accent);
-  border-bottom: 2px solid var(--notif-accent);
+  background: #fff;
+  color: #1e3c72;
+  border-bottom: 2.5px solid #42b983;
+  font-size: 1.18em;
+  box-shadow: 0 4px 16px #42b98311, 0 2px 0 #fff inset;
   z-index: 2;
+  transform: translateY(-3px) scale(1.07);
+}
+.tab-btn.active.nuevas {
+  color: #30c16c;
+  border-bottom: 2.5px solid #30c16c;
+  background: #eafff3;
+}
+.tab-btn.active.todas {
+  color: #ff9800;
+  border-bottom: 2.5px solid #ff9800;
+  background: #fff8e1;
 }
 .badge {
-  background: var(--notif-badge-bg, #ff5252);
+  background: #ff5252;
   color: #fff;
-  font-size: 0.85em;
+  border-radius: 12px;
+  font-size: 0.93em;
   font-weight: 700;
-  border-radius: 1em;
   padding: 0.1em 0.7em;
-  margin-left: 0.5em;
+  margin-left: 0.4em;
   vertical-align: middle;
-  box-shadow: 0 1px 4px #ff525233;
   display: inline-block;
+  box-shadow: 0 1px 4px #ff525233;
 }
 .notification-modal-body {
   padding: 1.2rem 1.5rem 1.2rem 1.5rem;
@@ -396,12 +423,30 @@ export default {
   color: #e3e8f0;
 }
 .admin-dark-mode .tab-btn {
-  color: var(--notif-title);
+  color: #e3e8f0;
+  background: #232b36;
+  border: 1.5px solid #3a4250;
+  border-bottom: none;
+  box-shadow: 0 2px 8px #42b98311;
+}
+.admin-dark-mode .tab-btn:not(.active):hover {
+  background: #2d3442;
+  color: #42e39a;
 }
 .admin-dark-mode .tab-btn.active {
-  background: var(--notif-btn-bg);
-  color: var(--notif-accent);
-  border-bottom: 2px solid var(--notif-accent);
+  background: #232b36;
+  color: #42e39a;
+  border-bottom: 2.5px solid #42e39a;
+}
+.admin-dark-mode .tab-btn.active.nuevas {
+  color: #42e39a;
+  border-bottom: 2.5px solid #42e39a;
+  background: #1e3c72;
+}
+.admin-dark-mode .tab-btn.active.todas {
+  color: #ffb300;
+  border-bottom: 2.5px solid #ffb300;
+  background: #232b36;
 }
 .admin-dark-mode .notificaciones-list li {
   background: #2d3442;
@@ -446,5 +491,20 @@ export default {
 .admin-dark-mode .notif-btn.delete:hover {
   background: #3a2323;
   color: #fff;
+}
+.notification-modal input,
+.notification-modal select,
+.notification-modal textarea {
+  border-radius: 10px;
+  border: 1.5px solid #e3e8f0;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  outline: none;
+  transition: border 0.18s;
+}
+.notification-modal input:focus,
+.notification-modal select:focus,
+.notification-modal textarea:focus {
+  border: 1.5px solid #42b983;
 }
 </style>

@@ -191,21 +191,31 @@ export default {
       localStorage.setItem('autoparts_user', JSON.stringify(usuario));
       if (usuario && usuario.rol === 'admin') {
         this.currentPage = 'admin'
+        if (this.$router) {
+          this.$router.push('/admin/dashboard');
+        }
       } else if (usuario && usuario.rol === 'cliente' && this.currentPage === 'home') {
         this.currentPage = 'parts'
       }
     },
     logout() {
       this.usuario = null;
+      this.showLogin = false;
+      this.mostrarCarrito = false;
+      this.mostrarPagar = false;
+      this.mostrarMenuCliente = false;
+      this.mostrarPerfilCliente = false;
+      this.mostrarComprasCliente = false;
+      this.currentPage = 'home';
       localStorage.removeItem('autoparts_user');
       localStorage.removeItem('carrito');
       localStorage.removeItem('ventas_ocultas');
       localStorage.removeItem('admin_dark_mode');
       localStorage.removeItem('auth_token');
-      // Eliminar clase de dark mode admin si quedó aplicada
       document.documentElement.classList.remove('admin-dark-mode');
       document.body.classList.remove('admin-dark-mode');
-      this.currentPage = 'home';
+      // Forzar eliminación de la clase modal-open
+      document.getElementById('app')?.classList.remove('modal-open');
       if (this.$router) {
         this.$router.push('/');
       }

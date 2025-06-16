@@ -7,5 +7,7 @@ router.get('/', ventaCtrl.obtenerVentas);
 router.get('/:id', ventaCtrl.obtenerVentaPorId);
 router.put('/:id', ventaCtrl.actualizarVenta);
 router.delete('/:id', ventaCtrl.eliminarVenta);
+router.post('/leida', ventaCtrl.marcarVentaLeida);
+router.get('/leidas/admin', ventaCtrl.obtenerVentasLeidasPorAdmin);
 
 module.exports = router;

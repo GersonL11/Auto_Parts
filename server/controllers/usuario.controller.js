@@ -39,6 +39,20 @@ exports.obtenerUsuarioPorId = async (req, res) => {
 exports.actualizarUsuario = async (req, res) => {
   try {
     const data = { ...req.body };
+    // Cambio de contraseña seguro desde panel admin/usuario
+    if (data.passwordActual && data.nuevaPassword) {
+      const usuario = await Usuario.findById(req.params.id);
+      if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+      const passwordOk = await bcrypt.compare(data.passwordActual, usuario.password);
+      if (!passwordOk) return res.status(400).json({ error: 'Contraseña actual incorrecta' });
+      const salt = await bcrypt.genSalt(10);
+      usuario.password = await bcrypt.hash(data.nuevaPassword, salt);
+      await usuario.save();
+      // Devuelve el usuario actualizado sin la contraseña
+      const { password, ...usuarioSinPassword } = usuario.toObject();
+      return res.json(usuarioSinPassword);
+    }
+    // Actualización normal de datos (sin cambio de contraseña)
     if (data.password) {
       const salt = await bcrypt.genSalt(10);
       data.password = await bcrypt.hash(data.password, salt);
@@ -47,6 +61,9 @@ exports.actualizarUsuario = async (req, res) => {
     if (typeof data.fotoPerfil === 'undefined') {
       delete updateFields.fotoPerfil;
     }
+    // Elimina campos de cambio de contraseña para no sobreescribir
+    delete updateFields.passwordActual;
+    delete updateFields.nuevaPassword;
     const usuario = await Usuario.findByIdAndUpdate(req.params.id, updateFields, { new: true });
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
     res.json(usuario);

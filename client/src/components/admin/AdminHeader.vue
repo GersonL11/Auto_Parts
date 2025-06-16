@@ -2,7 +2,7 @@
   <header class="admin-header">
     <div class="admin-header-left">
       <img :src="darkMode ? require('@/assets/logopart2.png') : require('@/assets/logopart.png')" alt="AutoParts Logo" class="admin-header-logo" />
-      <span class="admin-header-title">¡BIENVENIDO!</span>
+      <span class="admin-header-title">AutoParts</span>
     </div>
     <div class="admin-header-right">
       <button class="admin-header-icon-btn" title="Modo oscuro" @click="toggleDarkMode">
@@ -122,14 +122,11 @@ export default {
     const isDark = localStorage.getItem('admin_dark_mode') === 'true';
     this.darkMode = isDark;
     this.applyDarkMode(isDark);
-    // Inicializar contador de no leídos al montar
     this.fetchUnreadCount();
     this.fetchVentasNoLeidas();
-    // Actualización automática del contador de notificaciones
     this._notiInterval = setInterval(() => {
       this.fetchUnreadCount();
     }, 10000); 
-    // Obtener nombre de usuario desde localStorage
     const user = localStorage.getItem('autoparts_user');
     if (user) {
       try {
@@ -205,16 +202,10 @@ export default {
       }
     },
     saveProfile() {
-      // Aquí deberías hacer la petición para guardar los datos editados
-      // Por ahora solo cierra el modal
       this.showEditProfile = false;
-      // Opcional: mostrar notificación de éxito
     },
     savePassword() {
-      // Aquí deberías hacer la petición para cambiar la contraseña
-      // Por ahora solo cierra el modal
       this.showChangePassword = false;
-      // Opcional: mostrar notificación de éxito
     },
     applyDarkMode(enable) {
       const root = document.documentElement;
@@ -238,10 +229,27 @@ export default {
     },
     async fetchVentasNoLeidas() {
       try {
+        // Obtener adminId
+        let adminId = null;
+        const user = localStorage.getItem('autoparts_user');
+        if (user) {
+          const usuario = JSON.parse(user);
+          adminId = usuario._id;
+        }
+        let ocultas = [];
+        if (adminId) {
+          const resLeidas = await fetch(`http://localhost:3000/api/ventas/leidas/admin?adminId=${adminId}`);
+          ocultas = await resLeidas.json();
+        }
         const res = await fetch('http://localhost:3000/api/ventas');
         const ventas = await res.json();
-        const ocultas = JSON.parse(localStorage.getItem('ventas_ocultas') || '[]');
-        this.ventasNoLeidas = ventas.filter(v => !ocultas.includes(v._id)).length;
+        const ahora = new Date();
+        const hace24h = new Date(ahora.getTime() - 24 * 60 * 60 * 1000);
+        this.ventasNoLeidas = ventas.filter(v => {
+          if (!v.fecha) return false;
+          const fechaVenta = new Date(v.fecha);
+          return !ocultas.includes(v._id) && fechaVenta >= hace24h && fechaVenta <= ahora;
+        }).length;
       } catch {
         this.ventasNoLeidas = 0;
       }

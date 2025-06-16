@@ -3,88 +3,123 @@
     <button class="admin-header-icon-btn" title="Configuración" @click="toggleConfigMenu">
       <i class="fas fa-cog"></i>
     </button>
-    <div v-if="showConfigMenu" class="config-dropdown">
-      <ul>
-        <li @click="openEditProfile"><i class="fas fa-user-edit"></i> Editar perfil</li>
-        <li @click="openChangePassword"><i class="fas fa-key"></i> Cambiar contraseña</li>
-      </ul>
+    <div v-if="showConfigMenu">
+      <div class="config-dropdown-backdrop" @click="showConfigMenu = false"></div>
+      <div class="config-dropdown">
+        <ul>
+          <li @click="openEditProfile"><i class="fas fa-user-edit"></i> Editar perfil</li>
+          <li @click="openChangePassword"><i class="fas fa-key"></i> Cambiar contraseña</li>
+        </ul>
+      </div>
     </div>
     <!-- Modal Editar Perfil -->
     <transition name="perfil-modal-fade-soft">
-      <div v-if="showEditProfile" class="perfil-cliente-overlay" @click.self="closeEditProfile">
-        <div class="perfil-cliente-modal">
-          <button class="perfil-cliente-close" @click="closeEditProfile">&times;</button>
-          <div class="perfil-cliente-avatar-wrapper">
-            <div class="perfil-cliente-avatar" @click="ampliarFoto = true" style="cursor: pointer;">
-              <img v-if="editProfileData.fotoPreview" :src="editProfileData.fotoPreview" alt="Foto de perfil" class="perfil-foto-img" />
-              <i v-else class="fas fa-id-card"></i>
-              <button type="button" class="perfil-foto-cambiar-btn-circular" @click.stop="abrirSelectorFoto" :disabled="subiendoFoto" title="Cambiar foto de perfil">
-                <i class="fas fa-camera"></i>
-              </button>
-              <input ref="inputFoto" type="file" accept="image/*" @change="onProfilePicChange" class="perfil-foto-input-real" :disabled="subiendoFoto" style="display:none;" />
-              <span v-if="subiendoFoto" class="perfil-foto-cargando"><i class="fas fa-spinner fa-spin"></i> Subiendo...</span>
+      <div v-if="showEditProfile" class="perfil-cliente-overlay">
+        <transition name="perfil-modal-fade-soft">
+          <div class="perfil-cliente-modal">
+            <button class="perfil-cliente-close" @click="closeEditProfile">&times;</button>
+            <div class="perfil-cliente-avatar-wrapper">
+              <div class="perfil-cliente-avatar" @click="ampliarFoto = true" style="cursor: pointer;">
+                <img v-if="editProfileData.fotoPreview" :src="editProfileData.fotoPreview" alt="Foto de perfil" class="perfil-foto-img" />
+                <i v-else class="fas fa-id-card"></i>
+                <button type="button" class="perfil-foto-cambiar-btn-circular" @click.stop="abrirSelectorFoto" :disabled="subiendoFoto" title="Cambiar foto de perfil">
+                  <i class="fas fa-camera"></i>
+                </button>
+                <input ref="inputFoto" type="file" accept="image/*" @change="onProfilePicChange" class="perfil-foto-input-real" :disabled="subiendoFoto" style="display:none;" />
+                <span v-if="subiendoFoto" class="perfil-foto-cargando"><i class="fas fa-spinner fa-spin"></i> Subiendo...</span>
+              </div>
             </div>
+            <div class="perfil-cliente-title">Editar perfil</div>
+            <form class="perfil-cliente-form" @submit.prevent="saveProfile">
+              <div class="perfil-cliente-form-group">
+                <input v-model="editProfileData.nombre" type="text" required placeholder=" " />
+                <label>Nombre</label>
+              </div>
+              <div class="perfil-cliente-form-group">
+                <input v-model="editProfileData.email" type="email" required placeholder=" " />
+                <label>Email</label>
+              </div>
+              <button class="perfil-cliente-btn" type="submit" :disabled="subiendoFoto || guardando">Guardar</button>
+              <div v-if="errorFoto" class="perfil-foto-error">{{ errorFoto }}</div>
+            </form>
           </div>
-          <div class="perfil-cliente-title">Editar perfil</div>
-          <form class="perfil-cliente-form" @submit.prevent="saveProfile">
-            <div class="perfil-cliente-form-group">
-              <input v-model="editProfileData.nombre" type="text" required placeholder=" " />
-              <label>Nombre</label>
-            </div>
-            <div class="perfil-cliente-form-group">
-              <input v-model="editProfileData.email" type="email" required placeholder=" " />
-              <label>Email</label>
-            </div>
-            <button class="perfil-cliente-btn" type="submit" :disabled="subiendoFoto || guardando">Guardar</button>
-            <div v-if="errorFoto" class="perfil-foto-error">{{ errorFoto }}</div>
-          </form>
-        </div>
+        </transition>
       </div>
     </transition>
-    <!-- Snackbar global fuera del modal -->
     <transition name="perfil-snackbar-fade">
-      <div v-if="error || exito" class="perfil-cliente-snackbar" @click="error = ''; exito = false;">
-        <span v-if="error" class="snackbar-error">{{ error }}</span>
-        <span v-if="exito" class="snackbar-exito">Datos actualizados correctamente</span>
+      <div v-if="error || exito || errorReset || msgResetExito || msgRestablecer" class="perfil-cliente-snackbar" @click="error = ''; exito = false; errorReset = ''; msgResetExito = ''; msgRestablecer = ''">
+        <span v-if="error || errorReset" class="snackbar-error">{{ error || errorReset }}</span>
+        <span v-if="exito || msgResetExito || msgRestablecer" class="snackbar-exito">{{ exito ? 'Datos actualizados correctamente' : (msgResetExito || msgRestablecer) }}</span>
       </div>
     </transition>
     <!-- Modal Cambiar Contraseña -->
     <transition name="perfil-modal-fade-soft">
-      <div v-if="showChangePassword" class="perfil-cliente-overlay" @click.self="showChangePassword=false">
-        <div class="perfil-cliente-modal">
-          <button class="perfil-cliente-close" @click="showChangePassword=false">&times;</button>
-          <div class="perfil-cliente-title">Cambiar contraseña</div>
-          <form class="perfil-cliente-form" @submit.prevent="savePassword">
-            <div class="perfil-cliente-form-group">
-              <div style="position: relative; width: 100%;">
-                <input v-model="passwordData.actual" :type="showPasswordActual ? 'text' : 'password'" required placeholder=" " />
-                <label>Contraseña actual</label>
-                <button type="button" @click="showPasswordActual = !showPasswordActual" class="perfil-password-eye-btn" tabindex="-1" :aria-label="showPasswordActual ? 'Ocultar contraseña' : 'Mostrar contraseña'">
-                  <i :class="showPasswordActual ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-                </button>
+      <div v-if="showChangePassword" class="perfil-cliente-overlay">
+        <transition name="perfil-modal-fade-soft">
+          <div class="perfil-cliente-modal">
+            <button class="perfil-cliente-close" @click="showChangePassword=false">&times;</button>
+            <div class="perfil-cliente-title">Cambiar contraseña</div>
+            <form v-if="!mostrarRestablecer && !codigoEnviado" class="perfil-cliente-form" @submit.prevent="savePassword">
+              <div class="perfil-cliente-form-group">
+                <div style="position: relative; width: 100%;">
+                  <input v-model="passwordData.actual" :type="showPasswordActual ? 'text' : 'password'" required placeholder=" " />
+                  <label>Contraseña actual</label>
+                  <button type="button" @click="showPasswordActual = !showPasswordActual" class="perfil-password-eye-btn" tabindex="-1" :aria-label="showPasswordActual ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                    <i :class="showPasswordActual ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="perfil-cliente-form-group">
-              <div style="position: relative; width: 100%;">
-                <input v-model="passwordData.nueva" :type="showPasswordNueva ? 'text' : 'password'" required placeholder=" " />
-                <label>Nueva contraseña</label>
-                <button type="button" @click="showPasswordNueva = !showPasswordNueva" class="perfil-password-eye-btn" tabindex="-1" :aria-label="showPasswordNueva ? 'Ocultar contraseña' : 'Mostrar contraseña'">
-                  <i :class="showPasswordNueva ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-                </button>
+              <div class="perfil-cliente-form-group">
+                <div style="position: relative; width: 100%;">
+                  <input v-model="passwordData.nueva" :type="showPasswordNueva ? 'text' : 'password'" required placeholder=" " />
+                  <label>Nueva contraseña</label>
+                  <button type="button" @click="showPasswordNueva = !showPasswordNueva" class="perfil-password-eye-btn" tabindex="-1" :aria-label="showPasswordNueva ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                    <i :class="showPasswordNueva ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="perfil-cliente-form-group">
-              <input v-model="passwordData.confirmar" :type="showPasswordNueva ? 'text' : 'password'" required placeholder=" " />
-              <label>Confirmar nueva contraseña</label>
-            </div>
-            <button class="perfil-cliente-btn" type="submit" :disabled="guardando">
-              <span v-if="guardando"><i class="fas fa-spinner fa-spin"></i> Guardando...</span>
-              <span v-else>Guardar</span>
-            </button>
-            <div v-if="errorPassword" class="perfil-foto-error">{{ errorPassword }}</div>
-            <div v-if="exitoPassword" class="snackbar-exito">Contraseña actualizada correctamente</div>
-          </form>
-        </div>
+              <div class="perfil-cliente-form-group">
+                <input v-model="passwordData.confirmar" :type="showPasswordNueva ? 'text' : 'password'" required placeholder=" " />
+                <label>Confirmar nueva contraseña</label>
+              </div>
+              <button class="perfil-cliente-btn" type="submit" :disabled="guardando">
+                <span v-if="guardando"><i class="fas fa-spinner fa-spin"></i> Guardando...</span>
+                <span v-else>Guardar</span>
+              </button>
+              <button class="perfil-cliente-btn restablecer" type="button" @click="mostrarRestablecer = true" style="margin-top:0.5rem;">¿Olvidaste tu contraseña?</button>
+              <!-- Mensajes de error/exito ahora solo por toast -->
+            </form>
+            <form v-if="mostrarRestablecer && !codigoEnviado" @submit.prevent="enviarRestablecer" class="perfil-cliente-form perfil-restablecer-form">
+              <button type="button" class="perfil-cliente-back-btn" @click="mostrarRestablecer = false" aria-label="Volver">
+                <i class="fas fa-arrow-left"></i>
+              </button>
+              <div class="perfil-cliente-form-group">
+                <input v-model="correoRestablecer" type="email" required placeholder=" " readonly tabindex="-1" style="background:#f8fafc; color:#1e3c72; opacity:0.85; cursor:not-allowed;" />
+                <label>Correo</label>
+              </div>
+              <button class="perfil-cliente-btn" type="submit">Enviar enlace de restablecimiento</button>
+              <!-- Mensajes de error/exito ahora solo por toast -->
+            </form>
+            <form v-if="codigoEnviado" @submit.prevent="restablecerConCodigo" class="perfil-codigo-form">
+              <div class="perfil-cliente-form-group">
+                <input v-model="codigo" type="text" required placeholder=" " />
+                <label class="label-float">Código recibido</label>
+              </div>
+              <div class="perfil-cliente-form-group">
+                <div style="position: relative; width: 100%;">
+                  <input v-model="nuevaPasswordReset" :type="showPasswordReset ? 'text' : 'password'" required placeholder=" "
+                    @focus="focusNuevaPasswordReset = true" @blur="focusNuevaPasswordReset = false" />
+                  <button type="button" @click="showPasswordReset = !showPasswordReset" class="perfil-password-eye-btn" tabindex="-1" :aria-label="showPasswordReset ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                    <i :class="showPasswordReset ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                  </button>
+                  <label :class="{ 'label-float': focusNuevaPasswordReset || nuevaPasswordReset }">Nueva contraseña</label>
+                </div>
+              </div>
+              <button class="perfil-cliente-btn" type="submit">Restablecer contraseña</button>
+              <!-- Mensajes de error/exito ahora solo por toast -->
+            </form>
+          </div>
+        </transition>
       </div>
     </transition>
   </div>
@@ -129,17 +164,29 @@ export default {
       errorFoto: '',
       error: '',
       exito: false,
+      errorReset: '',
+      msgResetExito: '',
+      msgRestablecer: '',
       guardando: false,
       ampliarFoto: false,
       errorPassword: '',
-      exitoPassword: false
+      exitoPassword: false,
+      // Recuperación de contraseña
+      mostrarRestablecer: false,
+      correoRestablecer: '',
+      codigoEnviado: false,
+      codigo: '',
+      nuevaPasswordReset: '',
+      showPasswordReset: false,
+      focusNuevaPasswordReset: false
     }
   },
   mounted() {
     if (this.usuario) {
       this.editProfileData.nombre = this.usuario.nombre || '';
-      this.editProfileData.email = this.usuario.email || '';
+      this.editProfileData.email = this.usuario.email || this.usuario.correo || '';
       this.editProfileData.fotoPreview = this.usuario.fotoPerfil || '';
+      this.correoRestablecer = this.usuario.email || this.usuario.correo || '';
     }
   },
   watch: {
@@ -148,6 +195,15 @@ export default {
     },
     exito(val) {
       if (val) setTimeout(() => { this.exito = false }, 4000);
+    },
+    errorReset(val) {
+      if (val) setTimeout(() => { this.errorReset = '' }, 4000);
+    },
+    msgResetExito(val) {
+      if (val) setTimeout(() => { this.msgResetExito = '' }, 4000);
+    },
+    msgRestablecer(val) {
+      if (val) setTimeout(() => { this.msgRestablecer = '' }, 4000);
     },
     errorFoto(val) {
       if (val) setTimeout(() => { this.errorFoto = '' }, 4000);
@@ -263,16 +319,20 @@ export default {
       this.guardando = false;
     },
     async savePassword() {
+      this.error = '';
+      this.exito = false;
       this.errorPassword = '';
-      this.exitoPassword = false;
+      this.errorReset = '';
+      this.msgResetExito = '';
+      this.msgRestablecer = '';
       this.guardando = true;
       if (!this.passwordData.actual || !this.passwordData.nueva || !this.passwordData.confirmar) {
-        this.errorPassword = 'Completa todos los campos.';
+        this.error = 'Completa todos los campos.';
         this.guardando = false;
         return;
       }
       if (this.passwordData.nueva !== this.passwordData.confirmar) {
-        this.errorPassword = 'Las contraseñas no coinciden.';
+        this.error = 'Las contraseñas no coinciden.';
         this.guardando = false;
         return;
       }
@@ -300,16 +360,16 @@ export default {
           const data = await res.json();
           throw new Error(data.error || 'Error al cambiar la contraseña');
         }
-        this.exitoPassword = true;
+        this.exito = true;
         setTimeout(() => {
-          this.exitoPassword = false;
+          this.exito = false;
           this.showChangePassword = false;
         }, 2000);
         this.passwordData.actual = '';
         this.passwordData.nueva = '';
         this.passwordData.confirmar = '';
       } catch (e) {
-        this.errorPassword = e.message;
+        this.error = e.message;
       }
       this.guardando = false;
     },
@@ -323,6 +383,60 @@ export default {
       this.exitoPassword = false;
       this.showPasswordActual = false;
       this.showPasswordNueva = false;
+    },
+    async enviarRestablecer() {
+      this.msgRestablecer = '';
+      this.error = '';
+      this.errorReset = '';
+      this.msgResetExito = '';
+      this.codigoEnviado = false;
+      try {
+        const res = await fetch('http://localhost:3000/api/recuperar-clave', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo: this.correoRestablecer })
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Error al enviar correo');
+        }
+        this.msgRestablecer = 'Revisa tu correo para restablecer la contraseña.';
+        this.codigoEnviado = true;
+      } catch (e) {
+        this.error = e.message;
+      }
+    },
+    async restablecerConCodigo() {
+      this.errorReset = '';
+      this.msgResetExito = '';
+      this.error = '';
+      try {
+        const res = await fetch('http://localhost:3000/api/restablecer-clave', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            correo: this.correoRestablecer,
+            codigo: this.codigo,
+            nuevaPassword: this.nuevaPasswordReset
+          })
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Error al restablecer contraseña');
+        }
+        this.msgResetExito = '¡Contraseña restablecida correctamente!';
+        setTimeout(() => {
+          this.codigoEnviado = false;
+          this.mostrarRestablecer = false;
+          this.msgRestablecer = '';
+          this.msgResetExito = '';
+          this.codigo = '';
+          this.nuevaPasswordReset = '';
+          this.showChangePassword = false;
+        }, 2500);
+      } catch (e) {
+        this.errorReset = e.message;
+      }
     }
   }
 }
@@ -332,14 +446,28 @@ export default {
 .config-dropdown {
   position: absolute;
   right: 0;
-  top: 2.5rem;
-  background: #181c22; /* más oscuro */
-  color: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 12px #232b3622;
-  min-width: 180px;
+  top: 2.7rem;
+  min-width: 220px;
+  background: rgba(34, 40, 60, 0.92);
+  color: #e6e6e6;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.13), 0 1.5px 0 #fff4 inset;
+  border: 1.5px solid rgba(66,185,131,0.13);
+  padding: 0.25rem 0.1rem;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  backdrop-filter: blur(16px) saturate(1.2);
+  animation: fadeInPerfil 0.28s cubic-bezier(.4,0,.2,1);
+  transition: box-shadow 0.22s, border 0.22s, background 0.22s;
   z-index: 2000;
-  padding: 0.5rem 0;
+}
+.config-dropdown-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1999;
+  background: rgba(30,40,60,0.18);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  transition: background 0.22s;
 }
 .config-dropdown ul {
   list-style: none;
@@ -347,17 +475,53 @@ export default {
   padding: 0;
 }
 .config-dropdown li {
-  padding: 0.7rem 1.2rem;
-  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.85rem;
   font-size: 1.08rem;
-  transition: background 0.18s;
+  font-weight: 500;
+  border-radius: 0.6rem;
+  margin: 0.08rem 0.18rem;
+  padding: 0.82rem 1.5rem 0.82rem 1.2rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
+  user-select: none;
+  outline: none;
+  border: none;
 }
-.config-dropdown li:hover {
-  background: #ff9800;
-  color: #fff;
+.config-dropdown li:not(:last-child) {
+  border-bottom: 1px solid rgba(66,185,131,0.07);
+}
+.config-dropdown li i {
+  font-size: 1.18rem;
+  color: #3fa37a;
+  background: #f4f7fa;
+  border-radius: 50%;
+  padding: 0.13em 0.28em;
+  box-shadow: 0 1px 4px #1e3c7211;
+  border: 1px solid #e0e7ef;
+  transition: background 0.18s, color 0.18s;
+  min-width: 1.7em;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.config-dropdown li:hover, .config-dropdown li:focus {
+  background: rgba(34, 40, 60, 0.98);
+  color: #fff !important;
+  text-shadow: 0 1px 6px #232b3640;
+  transform: scale(1.025);
+  box-shadow: 0 4px 18px #42b98322;
+}
+.config-dropdown li:active {
+  background: rgba(66,185,131,0.22);
+  color: #232b36;
+}
+@keyframes fadeInPerfil {
+  from { opacity: 0; transform: translateY(32px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .perfil-cliente-overlay {
   position: fixed;
@@ -674,32 +838,79 @@ export default {
 }
 .perfil-cliente-snackbar {
   position: fixed;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
+  right: 36px;
+  bottom: 36px;
+  min-width: 220px;
+  max-width: 380px;
+  background: rgba(34, 40, 60, 0.38);
   color: #fff;
-  padding: 0.8rem 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 4000;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(30,60,114,0.22), 0 2px 12px rgba(66,185,131,0.13);
+  padding: 1.2em 2.1em 1.2em 1.5em;
+  font-size: 1.09rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  font-size: 0.9rem;
-  transition: opacity 0.3s ease;
+  gap: 1.05em;
+  z-index: 50000;
+  cursor: pointer;
+  user-select: none;
+  border: none;
+  opacity: 0.98;
+  animation: perfil-snackbar-pop 0.42s cubic-bezier(.4,0,.2,1);
+  transition: background 0.22s, color 0.22s, opacity 0.22s, box-shadow 0.22s;
+  pointer-events: auto;
+  backdrop-filter: blur(18px) saturate(1.7);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
-.snackbar-error {
+.perfil-cliente-snackbar .snackbar-error:before {
+  content: '\f06a';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  margin-right: 0.7em;
   color: #ff5252;
+  font-size: 1.35em;
+  vertical-align: middle;
+  filter: drop-shadow(0 1px 2px #ff525288);
+  display: inline-block;
+  min-width: 1.3em;
+  text-align: center;
 }
-.snackbar-exito {
-  color: #42e08f;
+.perfil-cliente-snackbar .snackbar-exito:before {
+  content: '\f058';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  margin-right: 0.7em;
+  color: #42e6a4;
+  font-size: 1.35em;
+  vertical-align: middle;
+  filter: drop-shadow(0 1px 2px #42b98388);
+  display: inline-block;
+  min-width: 1.3em;
+  text-align: center;
+}
+.snackbar-error, .snackbar-exito {
+  color: #fff;
+  background: transparent;
+  border-radius: 8px;
+  padding: 0.18em 0 0.18em 0;
+  font-weight: 600;
+  font-size: 1.07rem;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.01em;
+  box-shadow: none;
 }
 .perfil-snackbar-fade-enter-active, .perfil-snackbar-fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.42s, transform 0.42s;
 }
-.perfil-snackbar-fade-enter, .perfil-snackbar-fade-leave-to {
+.perfil-snackbar-fade-enter-from, .perfil-snackbar-fade-leave-to {
   opacity: 0;
+  transform: translateY(32px) scale(0.97);
+}
+@keyframes perfil-snackbar-pop {
+  from { opacity: 0; transform: translateY(32px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .perfil-foto-modal-bg {
   position: fixed;
@@ -755,5 +966,61 @@ export default {
 }
 .perfil-password-eye-btn:hover {
   color: #ff9800;
+}
+.perfil-modal-fade-soft-enter-active, .perfil-modal-fade-soft-leave-active {
+  transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1);
+}
+.perfil-modal-fade-soft-enter-from, .perfil-modal-fade-soft-leave-to {
+  opacity: 0;
+  transform: translateY(48px) scale(0.97);
+}
+
+/* Estilos para el icono de volver en la esquina superior izquierda */
+.perfil-cliente-back-btn {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.3rem;
+  z-index: 3;
+  background: rgba(255,255,255,0.8);
+  border: none;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: #1e3c72;
+  cursor: pointer;
+  padding: 0.12em 0.4em;
+  box-shadow: 0 2px 8px #42b98322;
+  transition: color 0.18s, background 0.18s, transform 0.18s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.perfil-cliente-back-btn:hover, .perfil-cliente-back-btn:focus {
+  background: #42b983;
+  color: #fff;
+  transform: scale(1.12) rotate(-8deg);
+}
+.perfil-cliente-back-btn:active {
+  background: #1e3c72;
+  color: #fff;
+  transform: scale(0.98);
+}
+
+/* Asegura que el label flote correctamente en inputs anidados */
+.perfil-cliente-form-group > div > input:focus + label,
+.perfil-cliente-form-group > div > input:not(:placeholder-shown) + label,
+.perfil-cliente-form-group input:focus + label,
+.perfil-cliente-form-group input:not(:placeholder-shown) + label,
+.perfil-cliente-form-group .label-float {
+  top: -0.95rem !important;
+  left: 0.9rem !important;
+  font-size: 0.82rem !important;
+  color: #fff !important;
+  background: linear-gradient(90deg, #42b983 60%, #1e3c72 100%) !important;
+  box-shadow: 0 2px 8px #42b98333 !important;
+  padding: 0.13em 0.7em !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  z-index: 2;
 }
 </style>
