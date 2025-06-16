@@ -1,6 +1,6 @@
 <template>
   <div class="admin-layout">
-    <AdminHeader />
+    <AdminHeader :usuario="usuario" @usuario-actualizado="handleUsuarioActualizado" />
     <MenuBarra :open="open" @close-sidebar="closeSidebar" @logout="handleLogout" />
     <div class="admin-content">
       <router-view />
@@ -15,21 +15,33 @@ export default {
   name: 'AdminLayout',
   components: { MenuBarra, AdminHeader },
   data() {
-    return { open: true }
+    return {
+      open: true,
+      usuario: null
+    }
+  },
+  created() {
+    // Cargar usuario desde localStorage al iniciar
+    const userStr = localStorage.getItem('autoparts_user');
+    if (userStr) {
+      this.usuario = JSON.parse(userStr);
+    }
   },
   methods: {
     closeSidebar() { this.open = false },
     handleLogout() {
-      // Redirige y limpia sesión globalmente
       this.$router.push('/');
-      // Limpieza básica de localStorage
       localStorage.removeItem('autoparts_user');
       localStorage.removeItem('carrito');
       localStorage.removeItem('ventas_ocultas');
       localStorage.removeItem('admin_dark_mode');
       localStorage.removeItem('auth_token');
-      // Emitir evento global para que App.vue pueda resetear el estado
       this.$root && this.$root.$emit && this.$root.$emit('admin-logout');
+      this.usuario = null;
+    },
+    handleUsuarioActualizado(nuevoUsuario) {
+      this.usuario = nuevoUsuario;
+      localStorage.setItem('autoparts_user', JSON.stringify(nuevoUsuario));
     }
   }
 }

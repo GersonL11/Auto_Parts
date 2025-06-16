@@ -12,20 +12,17 @@
         <i class="fas fa-bell"></i>
         <span v-if="noLeidos > 0" class="notification-badge">{{ noLeidos }}</span>
       </button>
-      <button class="admin-header-icon-btn" title="Configuración">
-        <i class="fas fa-cog"></i>
-      </button>
       <button class="admin-header-icon-btn" title="Reloj" @click="toggleVentas">
         <i class="fas fa-clock"></i>
         <span v-if="ventasNoLeidas > 0" class="notification-badge ventas-badge">{{ ventasNoLeidas }}</span>
       </button>
+      <AdminConfigMenu :usuario="usuario" @usuario-actualizado="$emit('usuario-actualizado', $event)" />
       <div class="admin-header-avatar">
         <img v-if="usuario && usuario.fotoPerfil" :src="usuario.fotoPerfil" alt="Avatar" />
         <i v-else class="fas fa-user-circle" style="font-size:2.2rem;color:#fff;background:#42b983;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;"></i>
       </div>
-      <div class="admin-header-search">
-        <input type="text" placeholder="Buscar..." />
-        <i class="fas fa-search"></i>
+      <div class="admin-header-user" style="background:none;border:none;box-shadow:none;padding:0;margin-left:0.2rem;display:flex;align-items:center;height:2.1rem;">
+        {{ usuario ? (usuario.nombre || usuario.usuario || 'Admin') : 'Admin' }}
       </div>
     </div>
     <NotificationDropdown
@@ -41,22 +38,83 @@
       @opened="onVentasDropdownOpen"
       ref="ventasDropdown"
     />
+    <!-- Modal Editar Perfil -->
+    <div v-if="showEditProfile" class="modal-bg">
+      <div class="modal-form">
+        <h3>Editar perfil</h3>
+        <form @submit.prevent="saveProfile">
+          <label>Nombre:</label>
+          <input v-model="editProfileData.nombre" type="text" required />
+          <label>Email:</label>
+          <input v-model="editProfileData.email" type="email" required />
+          <label>Foto de perfil:</label>
+          <input type="file" @change="onProfilePicChange" />
+          <div v-if="editProfileData.fotoPreview">
+            <img :src="editProfileData.fotoPreview" alt="Preview" class="img-preview" style="max-width:80px;max-height:80px;margin:8px 0;" />
+          </div>
+          <div style="margin-top:1rem;display:flex;gap:1rem;">
+            <button type="submit" class="btn-guardar">Guardar</button>
+            <button type="button" class="btn-cancelar" @click="showEditProfile=false">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Modal Cambiar Contraseña -->
+    <div v-if="showChangePassword" class="modal-bg">
+      <div class="modal-form">
+        <h3>Cambiar contraseña</h3>
+        <form @submit.prevent="savePassword">
+          <label>Contraseña actual:</label>
+          <input v-model="passwordData.actual" type="password" required />
+          <label>Nueva contraseña:</label>
+          <input v-model="passwordData.nueva" type="password" required />
+          <label>Confirmar nueva contraseña:</label>
+          <input v-model="passwordData.confirmar" type="password" required />
+          <div style="margin-top:1rem;display:flex;gap:1rem;">
+            <button type="submit" class="btn-guardar">Guardar</button>
+            <button type="button" class="btn-cancelar" @click="showChangePassword=false">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </header>
 </template>
 
 <script>
 import NotificationDropdown from './NotificationDropdown.vue';
 import VentasDropdown from './VentasDropdown.vue';
+import AdminConfigMenu from './AdminConfigMenu.vue';
 export default {
   name: 'AdminHeader',
-  components: { NotificationDropdown, VentasDropdown },
+  components: { NotificationDropdown, VentasDropdown, AdminConfigMenu },
+  props: {
+    usuario: {
+      type: Object,
+      default: null
+    }
+  },
   data() {
     return {
       darkMode: false,
       showNotificaciones: false,
       showVentas: false,
       noLeidos: 0,
-      ventasNoLeidas: 0
+      ventasNoLeidas: 0,
+      usuarioNombre: '',
+      showConfigMenu: false,
+      showEditProfile: false,
+      showChangePassword: false,
+      editProfileData: {
+        nombre: '',
+        email: '',
+        foto: null,
+        fotoPreview: null
+      },
+      passwordData: {
+        actual: '',
+        nueva: '',
+        confirmar: ''
+      }
     }
   },
   mounted() {
@@ -71,6 +129,23 @@ export default {
     this._notiInterval = setInterval(() => {
       this.fetchUnreadCount();
     }, 10000); 
+    // Obtener nombre de usuario desde localStorage
+    const user = localStorage.getItem('autoparts_user');
+    if (user) {
+      try {
+        const usuario = JSON.parse(user);
+        this.usuarioNombre = usuario.nombre || usuario.usuario || 'Admin';
+      } catch {
+        this.usuarioNombre = 'Admin';
+      }
+    } else {
+      this.usuarioNombre = 'Admin';
+    }
+    if (this.usuario) {
+      this.editProfileData.nombre = this.usuario.nombre || '';
+      this.editProfileData.email = this.usuario.email || '';
+      this.editProfileData.fotoPreview = this.usuario.fotoPerfil || null;
+    }
   },
   beforeUnmount() {
     if (this._notiInterval) clearInterval(this._notiInterval);
@@ -86,20 +161,60 @@ export default {
       this.darkMode = !this.darkMode;
     },
     toggleNotificaciones() {
-      this.showNotificaciones = !this.showNotificaciones;
-      if (this.showNotificaciones) {
+      if (!this.showNotificaciones) {
+        this.showNotificaciones = true;
+        this.showVentas = false;
         this.$nextTick(() => {
           this.$refs.notiDropdown?.fetchCorreos();
         });
+      } else {
+        this.showNotificaciones = false;
       }
     },
     toggleVentas() {
-      this.showVentas = !this.showVentas;
-      if (this.showVentas) {
+      if (!this.showVentas) {
+        this.showVentas = true;
+        this.showNotificaciones = false;
         this.$nextTick(() => {
           this.$refs.ventasDropdown?.fetchVentas();
         });
+      } else {
+        this.showVentas = false;
       }
+    },
+    toggleConfigMenu() {
+      this.showConfigMenu = !this.showConfigMenu;
+    },
+    openEditProfile() {
+      this.showConfigMenu = false;
+      this.showEditProfile = true;
+    },
+    openChangePassword() {
+      this.showConfigMenu = false;
+      this.showChangePassword = true;
+    },
+    onProfilePicChange(e) {
+      const file = e.target.files[0];
+      if (file) {
+        this.editProfileData.foto = file;
+        const reader = new FileReader();
+        reader.onload = e2 => {
+          this.editProfileData.fotoPreview = e2.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    saveProfile() {
+      // Aquí deberías hacer la petición para guardar los datos editados
+      // Por ahora solo cierra el modal
+      this.showEditProfile = false;
+      // Opcional: mostrar notificación de éxito
+    },
+    savePassword() {
+      // Aquí deberías hacer la petición para cambiar la contraseña
+      // Por ahora solo cierra el modal
+      this.showChangePassword = false;
+      // Opcional: mostrar notificación de éxito
     },
     applyDarkMode(enable) {
       const root = document.documentElement;
@@ -238,35 +353,74 @@ export default {
   margin-right: 0.7rem;
 }
 .admin-header-avatar img {
-  width: 38px;
-  height: 38px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #fff;
+  background: #fff;
+  border: 2.5px solid #42b983;
   box-shadow: 0 2px 8px #42b98333;
 }
-.admin-header-search {
+.admin-header-avatar i {
+  font-size: 3.2rem !important;
+  width: 54px;
+  height: 54px;
   display: flex;
   align-items: center;
-  background: #232b36;
-  border-radius: 18px;
-  padding: 0.2rem 0.8rem;
-  box-shadow: 0 2px 8px #42b98322;
-  margin-left: 0.7rem;
+  justify-content: center;
+  background: #42b983;
+  border-radius: 50%;
 }
-.admin-header-search input {
-  background: transparent;
+.admin-header-user {
+  background: none;
   border: none;
+  box-shadow: none;
+  padding: 0;
+  margin-left: 0.2rem !important;
+  display: flex;
+  align-items: center;
+  height: 2.1rem;
+  font-size: 1.35rem;
+  font-weight: 700;
   color: #fff;
-  font-size: 1rem;
-  outline: none;
-  padding: 0.3rem 0.5rem;
-  font-family: inherit;
 }
-.admin-header-search i {
-  color: #42b983;
-  font-size: 1.1rem;
-  margin-left: 0.3rem;
+.clean-user {
+  display: flex;
+  align-items: center;
+  background: rgba(35, 43, 54, 0.92);
+  border-radius: 2rem;
+  padding: 0.45rem 1.7rem 0.45rem 1.1rem;
+  margin-left: 0.7rem;
+  font-size: 1.13rem;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 4px 24px 0 rgba(30,60,114,0.13), 0 2px 8px #ff980022;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(10px) saturate(1.5);
+  -webkit-backdrop-filter: blur(10px) saturate(1.5);
+  letter-spacing: 0.04em;
+  transition: box-shadow 0.22s, border 0.22s, background 0.22s;
+}
+.clean-user::before {
+  content: '';
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.7rem;
+  border-radius: 50%;
+  background: #fff url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23232b36"/><path d="M16 16c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.33 0-10 1.667-10 5v2h20v-2c0-3.333-6.67-5-10-5z" fill="%23fff"/></svg>') center/70% no-repeat;
+  box-shadow: 0 1px 4px #232b3622;
+}
+.clean-user span {
+  color: #fff;
+  font-size: 1.13rem;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-weight: 600;
+  text-shadow: none;
+}
+.clean-user:hover {
+  box-shadow: 0 6px 24px 0 rgba(30,60,114,0.13);
+  background: rgba(35, 43, 54, 1);
 }
 @media (max-width: 900px) {
   .admin-header {
