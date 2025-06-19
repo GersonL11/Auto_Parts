@@ -107,16 +107,21 @@ exports.actualizarRepuesto = function _callee4(req, res) {
       switch (_context4.prev = _context4.next) {
         case 0:
           _context4.prev = 0;
-          _context4.next = 3;
+
+          if (req.body.imagen === '' || req.body.imagen === undefined || req.body.imagen === null) {
+            delete req.body.imagen;
+          }
+
+          _context4.next = 4;
           return regeneratorRuntime.awrap(Repuesto.findByIdAndUpdate(req.params.id, req.body, {
             "new": true
           }));
 
-        case 3:
+        case 4:
           repuesto = _context4.sent;
 
           if (repuesto) {
-            _context4.next = 6;
+            _context4.next = 7;
             break;
           }
 
@@ -124,24 +129,24 @@ exports.actualizarRepuesto = function _callee4(req, res) {
             error: 'Repuesto no encontrado'
           }));
 
-        case 6:
+        case 7:
           res.json(repuesto);
-          _context4.next = 12;
+          _context4.next = 13;
           break;
 
-        case 9:
-          _context4.prev = 9;
+        case 10:
+          _context4.prev = 10;
           _context4.t0 = _context4["catch"](0);
           res.status(400).json({
             error: _context4.t0.message
           });
 
-        case 12:
+        case 13:
         case "end":
           return _context4.stop();
       }
     }
-  }, null, null, [[0, 9]]);
+  }, null, null, [[0, 10]]);
 }; // Eliminar repuesto
 
 
@@ -187,5 +192,60 @@ exports.eliminarRepuesto = function _callee5(req, res) {
       }
     }
   }, null, null, [[0, 9]]);
+}; // Cantidad de repuestos por mes/año de registro
+
+
+exports.cantidadPorFechaRegistro = function _callee6(req, res) {
+  var datos;
+  return regeneratorRuntime.async(function _callee6$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          _context6.prev = 0;
+          _context6.next = 3;
+          return regeneratorRuntime.awrap(Repuesto.aggregate([{
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: "%m/%Y",
+                  date: "$fechaRegistro"
+                }
+              },
+              cantidad: {
+                $sum: 1
+              }
+            }
+          }, {
+            $sort: {
+              "_id": 1
+            }
+          }]));
+
+        case 3:
+          datos = _context6.sent;
+          res.json({
+            labels: datos.map(function (d) {
+              return d._id;
+            }),
+            valores: datos.map(function (d) {
+              return d.cantidad;
+            })
+          });
+          _context6.next = 10;
+          break;
+
+        case 7:
+          _context6.prev = 7;
+          _context6.t0 = _context6["catch"](0);
+          res.status(500).json({
+            error: _context6.t0.message
+          });
+
+        case 10:
+        case "end":
+          return _context6.stop();
+      }
+    }
+  }, null, null, [[0, 7]]);
 };
 //# sourceMappingURL=repuesto.controller.dev.js.map

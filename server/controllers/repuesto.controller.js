@@ -52,3 +52,26 @@ exports.eliminarRepuesto = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// Cantidad de repuestos por mes/año de registro
+exports.cantidadPorFechaRegistro = async (req, res) => {
+  try {
+    const datos = await Repuesto.aggregate([
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%m/%Y", date: "$fechaRegistro" }
+          },
+          cantidad: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+    res.json({
+      labels: datos.map(d => d._id),
+      valores: datos.map(d => d.cantidad)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
