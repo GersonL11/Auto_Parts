@@ -41,6 +41,11 @@
           <input v-model="form.usuario" required />
           <label v-if="!editando">Contraseña</label>
           <input v-if="!editando" v-model="form.password" type="password" required />
+          <label>Rol</label>
+          <select v-model="form.rol" required>
+            <option value="cliente">Cliente</option>
+            <option value="admin">Admin</option>
+          </select>
           <div class="modal-actions">
             <button type="submit" class="btn-guardar">Guardar</button>
             <button type="button" class="btn-cancelar" @click="cerrarModal">Cancelar</button>
@@ -59,7 +64,7 @@ export default {
       usuarios: [],
       showModal: false,
       editando: false,
-      form: { _id: null, nombre: '', correo: '', usuario: '' }
+      form: { _id: null, nombre: '', correo: '', usuario: '', password: '', rol: 'cliente' }
     }
   },
   mounted() {
@@ -77,7 +82,7 @@ export default {
     abrirModal(user = null) {
       if (user) {
         this.editando = true;
-        this.form = { ...user };
+        this.form = { ...user, password: '' }; // password vacío para no mostrarlo
       } else {
         this.editando = false;
         this.form = { _id: null, nombre: '', correo: '', usuario: '', password: '' };
@@ -208,7 +213,7 @@ export default {
   margin-bottom: 0.3rem;
   font-weight: bold;
 }
-.modal-form input {
+.modal-form input, .modal-form select {
   width: 100%;
   padding: 0.5rem;
   border-radius: 8px;

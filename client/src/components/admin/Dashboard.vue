@@ -21,19 +21,10 @@
       <div class="card-desc">Total vendido</div>
     </div>
   </div>
-
-  <!-- Gráfico de pastel debajo de las cards -->
-  <div style="max-width: 900px; margin: 0 auto; background: #fff; border-radius: 16px; box-shadow: 0 2px 8px #0001; padding: 2rem; min-height:320px; display:flex; align-items:center; justify-content:center;">
-    <canvas v-if="hayDatosGrafico" id="ventasBarChart" height="300"></canvas>
-    <div v-else style="width:100%;text-align:center;color:#b0bec5;font-size:1.3rem;font-weight:700;">
-      No hay datos suficientes para mostrar el gráfico.
-    </div>
-  </div>
+  <!-- Se eliminó el gráfico de barras -->
 </template>
 
 <script>
-import Chart from 'chart.js/auto'
-
 export default {
   name: 'AdminDashboard',
   data() {
@@ -42,8 +33,6 @@ export default {
       totalRepuestos: 0,
       totalMovimientos: 0,
       totalVentas: 0,
-      ventasChart: null,
-      hayDatosGrafico: false,
       meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
     }
   },
@@ -67,48 +56,6 @@ export default {
     const ventasRes = await fetch('http://localhost:3000/api/ventas');
     const ventas = await ventasRes.json();
     this.totalVentas = ventas.reduce((sum, v) => sum + (Number(v.total) || 0), 0);
-
-    // Gráfico: cantidad de repuestos por mes/año de registro
-    const res = await fetch('http://localhost:3000/api/repuestos/por-fecha');
-    const data = await res.json();
-    const labels = data.labels || [];
-    const valores = data.valores || [];
-
-    this.hayDatosGrafico = Array.isArray(valores) && valores.length > 0 && valores.some(v => v > 0);
-
-    if (this.hayDatosGrafico) {
-      this.ventasChart = new Chart(
-        document.getElementById('ventasBarChart'),
-        {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Cantidad de repuestos por mes de registro',
-              data: valores,
-              backgroundColor: '#42b983',
-              borderColor: '#1e3c72',
-              borderWidth: 2
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false }
-            },
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        }
-      );
-    }
-  },
-  beforeUnmount() {
-    if (this.ventasChart) {
-      this.ventasChart.destroy();
-    }
   }
 }
 </script>
