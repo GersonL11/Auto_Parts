@@ -21,6 +21,7 @@
       <div class="card-desc">Total vendido</div>
     </div>
   </div>
+  <!-- Se eliminó el gráfico de barras -->
 </template>
 
 <script>
@@ -31,7 +32,8 @@ export default {
       totalUsuarios: 0,
       totalRepuestos: 0,
       totalMovimientos: 0,
-      totalVentas: 0
+      totalVentas: 0,
+      meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
     }
   },
   async mounted() {

@@ -1,6 +1,7 @@
 const Venta = require('../models/Venta');
 const Repuesto = require('../models/Repuesto');
 const VentaLeida = require('../models/VentaLeida');
+const Movimiento = require('../models/Movimiento');
 
 // Crear venta
 exports.crearVenta = async (req, res) => {
@@ -28,6 +29,19 @@ exports.crearVenta = async (req, res) => {
     // Guardar la venta
     const venta = new Venta(req.body);
     await venta.save();
+
+    // --- NUEVO: Registrar movimiento de salida por cada producto vendido ---
+    for (const item of carrito) {
+      await Movimiento.create({
+        repuesto: item._id,
+        tipo: 'Salida',
+        cantidad: item.cantidad,
+        fecha: new Date(),
+        descripcion: `Venta de ${item.nombre} (${item.marca || ''} ${item.modelo || ''}) x${item.cantidad}`
+      });
+    }
+    // --- FIN NUEVO ---
+
     res.status(201).json(venta);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -102,5 +116,59 @@ exports.obtenerVentasLeidasPorAdmin = async (req, res) => {
     res.json(leidas.map(l => l.ventaId));
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+// Obtener cantidad de ventas por mes (para gráfico)
+exports.obtenerVentasPorMes = async (req, res) => {
+  try {
+    const ahora = new Date();
+    const anioActual = ahora.getFullYear();
+    // Agrupa por mes y cuenta la cantidad de ventas del año actual
+    const ventasPorMes = await Venta.aggregate([
+      {
+        $match: {
+          fecha: {
+            $gte: new Date(`${anioActual}-01-01T00:00:00.000Z`),
+            $lte: new Date(`${anioActual}-12-31T23:59:59.999Z`)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $month: "$fecha" },
+          cantidad: { $sum: 1 }
+        }
+      }
+    ]);
+    const valores = Array(12).fill(0);
+    ventasPorMes.forEach(item => {
+      valores[item._id - 1] = item.cantidad;
+    });
+    res.json({ valores });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Total vendido por cliente (top 10, con nombre por defecto si está vacío)
+exports.obtenerVentasPorCliente = async (req, res) => {
+  try {
+    const ventasPorCliente = await Venta.aggregate([
+      {
+        $group: {
+          _id: { $ifNull: ["$cliente", "Sin nombre"] },
+          total: { $sum: "$total" }
+        }
+      },
+      { $sort: { total: -1 } },
+      { $limit: 10 }
+    ]);
+    res.json({
+      labels: ventasPorCliente.map(v => v._id || "Sin nombre"),
+      valores: ventasPorCliente.map(v => v.total)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
